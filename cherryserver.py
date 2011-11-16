@@ -3,7 +3,7 @@ __author__ = 'mario'
 
 import cherrypy
 import os
-import GeneticSpace
+import EvoSpace
 # a foo.html file will contain our Dojo code performing the XHR request
 # and that's all the following config directive is doing
 current_dir = os.getcwd()
@@ -28,7 +28,7 @@ class Content:
         obj = eval(rawPost) #MAJOR security hole! you’ve been warned...
     # process the data
         if obj["method"] == "getSample":
-            result = GeneticSpace.population.get_sample(obj["params"][0])
+            result = EvoSpace.population.get_sample(obj["params"][0])
         if obj["method"] == "sumOfSquares":
             result = sum([i*i for i in obj["params"][0]])
     # return a json response

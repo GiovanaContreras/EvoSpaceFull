@@ -24,12 +24,11 @@
 
     	var rpcObject = new dojo.rpc.JsonService(o);
 	//call the service and use the Deferred that is returned to add a callback
-		var sum = rpcObject.getSample(100);
+		var sum = rpcObject.getSample(10);
 	       sum.addCallback(function(response) 
-
-                                {
+                    {
                     var datos = dojo.fromJson(response);
-                     dojo.byId("datos1").innerHTML = datos.sample[0].chromosome;
+                    dojo.byId("datos1").innerHTML = datos.sample[0].chromosome;
 				    console.log("the answer is ", response);
 					});
 			//add more callbacks, errbacks, etc.
