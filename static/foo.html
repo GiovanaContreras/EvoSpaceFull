@@ -1,0 +1,44 @@
+ <html>
+ <head>
+ <title>Fun with JSON RPC!</title>
+  <script type="text/javascript" src="/static/dojo/dojo/dojo.js" djConfig="isDebug:true, usePlainJson:true"> </script>
+  <script type="text/javascript"> 
+    dojo.require("dojo.rpc.JsonService");
+    dojo.addOnLoad(function( ) {
+    //construct the smd as an Object literal...
+    var o = {
+	"serviceType": "JSON-RPC",
+	"serviceURL": "/EvoSpace",
+	"methods":[
+		{
+		"name": "getSample",
+		"parameters":[{name : "size"}]
+		},
+		{
+		"name": "sumOfSquares",
+		"parameters":[{name : "list"}]
+		}
+		]
+		}
+//instantiate the service
+
+    	var rpcObject = new dojo.rpc.JsonService(o);
+	//call the service and use the Deferred that is returned to add a callback
+		var sum = rpcObject.getSample(100);
+	       sum.addCallback(function(response) 
+
+                                {
+                    var datos = dojo.fromJson(response);
+                     dojo.byId("datos1").innerHTML = datos.sample[0].chromosome;
+				    console.log("the answer is ", response);
+					});
+			//add more callbacks, errbacks, etc.
+			//call sumOfSquares the very same way...
+		});
+</script>
+
+<body>
+
+ <p id="datos1"> Hola  </p>
+</body>
+</html>
