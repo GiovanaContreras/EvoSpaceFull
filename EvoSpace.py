@@ -62,7 +62,7 @@ class Population:
         key = r.incr(self.sample_counter)
         return self.name+":individual:%s" % key
 
-    def initialize(self, initial_size = 1000):
+    def initialize(self, initial_size = 10):
         self.initial_size = initial_size
         r.flushall()
         r.setnx(self.sample_counter,0)
