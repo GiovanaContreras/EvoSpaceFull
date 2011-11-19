@@ -72,7 +72,7 @@ class Population:
         sample_id = r.incr(self.sample_counter)
         sample = [r.spop(self.name) for i in range(size)]
         r.sadd(self.name+":sample:%s" % sample_id, *sample)
-        r.lpush(self.sample_queue, self.name+":sample:%s" % sample_id)
+        r.rpush(self.sample_queue, self.name+":sample:%s" % sample_id)
         result =  {'sample_id': self.name+":sample:%s" % sample_id ,
                    'sample':   [Individual(key).get(as_dict=True) for key in sample]}
         return json.dumps(result)
@@ -89,37 +89,38 @@ class Population:
         ind.put(self.name)
 
     def put_sample(self,sample):
-        if type(sample) == 'str':
+        if isinstance(sample,str):
             sample = json.loads(sample)
 
         if r.exists(sample['sample_id']):
             for member in sample['sample']:
                 if member['id'] is None:
                     member['id'] = self.name+":individual:%s" % r.incr(self.individual_counter)
-                put_individual( member['id'], fitness = member['fitness'] , chromosome  = member['chromosome'])
+                self.put_individual( member['id'], fitness = member['fitness'] , chromosome  = member['chromosome'])
             r.delete(sample['sample_id'])
             r.lrem(self.sample_queue,sample['sample_id'])
 
     def respawn_sample(self, sample):
-        members = r.smembers(sample)
-        r.sadd(self.name, *members)
-        r.delete(sample)
-        r.lrem(self.sample_queue,sample,1)
+        if r.exists(sample):
+            members = r.smembers(sample)
+            r.sadd(self.name, *members)
+            r.delete(sample)
+            r.lrem(self.sample_queue,sample,1)
 
     def respawn_ratio(self, ratio = .2):
         until_sample  = int(r.llen(self.sample_queue)*ratio)
         for i in range(until_sample):
-            respawn_sample( r.lpop(self.sample_queue))
+            self.respawn_sample( r.lpop(self.sample_queue))
 
 
     def respawn(self, n = 1):
         current_size = r.llen(self.sample_queue)
         if n > current_size:
-            for i in range(n):
-                respawn_sample( r.lpop(self.sample_queue))
-        else:
             for i in range(current_size):
-                respawn_sample( r.lpop(self.sample_queue))
+                self.respawn_sample( r.lpop(self.sample_queue))
+        else:
+            for i in range(n):
+                self.respawn_sample( r.lpop(self.sample_queue))
 
 
 
@@ -132,8 +133,18 @@ def init_population(population):
         population.put_individual(key, fitness={"DefaultContext":0.0 }, chromosome  = chrome )
 
 
-population = Population("population")
+population = Population("pop")
 init_population(population)
+for i in range(4):
+    population.get_sample(5)
+
+
+s = population.get_sample(5)
+
+print type(s)
+print s
+
+population.put_sample(s)
 
 #clock_start = time.clock()
 #time_start = time.time()
@@ -162,3 +173,4 @@ init_population(population)
 #print 'TOTAL CLOCK', clock_end-clock_start
 #print 'TOTAL TIME', time_end-time_start
 #
+#  test =  """{"sample": [{"id": "population:individual:55", "chromosome": [29, 91, 94, 111, 242, 115, 55, 96, 144, 43, 198], "fitness": {"DefaultContext": 0.0}}, {"id": "population:individual:102", "chromosome": [111, 249, 171, 208, 165, 213, 61, 231, 34, 84, 4], "fitness": {"DefaultContext": 0.0}}, {"id": "population:individual:33", "chromosome": [200, 249, 124, 95, 25, 71, 185, 112, 84, 84, 18], "fitness": {"DefaultContext": 0.0}}], "sample_id": "population:sample:1004"}"""

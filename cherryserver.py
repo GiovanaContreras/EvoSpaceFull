@@ -7,7 +7,7 @@ import EvoSpace
 
 
 
-EvoSpace.init_population()
+#EvoSpace.init_population("pop")
 # a foo.html file will contain our Dojo code performing the XHR request
 # and that's all the following config directive is doing
 
