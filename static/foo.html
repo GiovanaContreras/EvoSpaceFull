@@ -17,11 +17,14 @@
 		{
 		"name": "sumOfSquares",
 		"parameters":[{name : "list"}]
+		},
+		{
+		"name": "sumOfSquares",
+		"parameters":[{name : "list"}]
 		}
 		]
 		}
 //instantiate the service
-
     	var rpcObject = new dojo.rpc.JsonService(o);
 	//call the service and use the Deferred that is returned to add a callback
 		var sum = rpcObject.getSample(10);

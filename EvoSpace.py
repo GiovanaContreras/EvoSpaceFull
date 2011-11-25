@@ -62,7 +62,7 @@ class Population:
         key = r.incr(self.sample_counter)
         return self.name+":individual:%s" % key
 
-    def initialize(self, initial_size = 10):
+    def initialize(self, initial_size = 20):
         self.initial_size = initial_size
         r.flushall()
         r.setnx(self.sample_counter,0)
@@ -77,11 +77,21 @@ class Population:
                    'sample':   [Individual(key).get(as_dict=True) for key in sample]}
         return json.dumps(result)
 
-    def read_sample(self, size):
-        sample_id = r.incr(self.sample_counter)
-        sample = [r.spop(self.name) for i in range(size)]
-        result =  {'sample_id': self.name+":sample:%s" % sample_id ,
-                   'sample':   [Individual(key).get(as_dict=True) for key in sample]}
+    def read_sample_queue(self):
+        result = r.lrange(self.sample_queue,0,-1)
+        return json.dumps(result)
+#####
+##### Read Sample es get POP
+#####
+#    def read_sample(self, size):
+#        sample_id = r.incr(self.sample_counter)
+#        sample = [r.spop(self.name) for i in range(size)]
+#        result =  {'sample_id': self.name+":sample:%s" % sample_id ,
+#                   'sample':   [Individual(key).get(as_dict=True) for key in sample]}
+#        return json.dumps(result)
+    def read_sample(self):
+        sample = r.smembers(self.name)
+        result =  { 'sample':   [Individual(key).get(as_dict=True) for key in sample]}
         return json.dumps(result)
 
     def put_individual(self, key = None , fitness = {}  , chromosome  = None , from_dict = None ):
@@ -89,8 +99,8 @@ class Population:
         ind.put(self.name)
 
     def put_sample(self,sample):
-        if isinstance(sample,str):
-            sample = json.loads(sample)
+        #if isinstance(sample,str):
+        sample = json.loads(sample)
 
         if r.exists(sample['sample_id']):
             for member in sample['sample']:
@@ -135,16 +145,16 @@ def init_population(population):
 
 population = Population("pop")
 init_population(population)
-for i in range(4):
-    population.get_sample(5)
+#for i in range(4):
+#    population.get_sample(5)
 
 
-s = population.get_sample(5)
+#s = population.get_sample(5)
 
-print type(s)
-print s
+#print type(s)
+#print s
 
-population.put_sample(s)
+#population.put_sample(s)
 
 #clock_start = time.clock()
 #time_start = time.time()

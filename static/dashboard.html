@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<title>EvoSpace Dashboard</title>
+		<link rel="stylesheet" href="css/960.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="css/template.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="css/colour.css" type="text/css" media="screen" charset="utf-8" />
+		<script type="text/javascript" src="/static/dojo/dojo/dojo.js" djConfig="isDebug:true, usePlainJson:true"> </script>
+
+        <script type="text/javascript">
+
+            var sample = "";
+            dojo.require("dojo.rpc.JsonService");
+            var callback = function getSampleCall(response)
+                            {
+
+                             var  datos = dojo.fromJson(response);
+                             dojo.query('> *', dojo.byId('sample')).forEach(dojo.destroy);
+                             dojo.forEach(datos.sample, function(item) {
+                                    var tSample = dojo.byId("sample");
+                                    var tr = dojo.create("tr",null,tSample);
+                                    dojo.create("td",{ innerHTML: item.id.slice(15)+" : "+item.chromosome},tr);
+                                    });
+
+                            sample = datos;
+                            console.log("the answer is ", response);
+                            }
+            var readSample = function readSampleCall(response)
+                            {
+                             var  datos = dojo.fromJson(response);
+                             dojo.query('> *', dojo.byId('currPop')).forEach(dojo.destroy);
+                             var pop = ""
+
+                             dojo.forEach(datos.sample, function(item) {
+
+                             pop = pop + item.id.slice(15)+", "
+                                                              });
+
+                             var tSample = dojo.byId("currPop");
+                             var tr = dojo.create("tr",null,tSample);
+                             dojo.create("td",{ innerHTML: pop},tr);
+
+                            }
+
+            dojo.addOnLoad(function( ) {
+            //construct the smd as an Object literal...
+            var o = {
+            "serviceType": "JSON-RPC",
+            "serviceURL": "/EvoSpace",
+            "methods":[
+                {
+                "name": "getSample",
+                "parameters":[{name : "size"}]
+                },
+                {
+                "name": "readSample",
+                "parameters":[]
+                },
+
+                {
+                "name": "respawn",
+                "parameters":[{name : "size"}]
+                },
+
+                {
+                "name": "putSample",
+                "parameters":[{name : "sample"}]
+                }
+                ]
+                }
+            //instantiate the service
+                var rpcObject = new dojo.rpc.JsonService(o);
+            //call the service and use the Deferred that is returned to add a callback
+
+
+                var sum = rpcObject.getSample(3);
+                    sum.addCallback(callback);
+
+                var pop = rpcObject.readSample();
+                pop.addCallback(readSample);
+
+                var myButton = dojo.byId("getJson");
+                dojo.connect(myButton, "onclick",
+                         function(evt){
+                          var sum = rpcObject.getSample(3);
+                          sum.addCallback(callback);
+
+                            });
+                var respawnButton = dojo.byId("respawn");
+                dojo.connect(respawnButton, "onclick",
+                         function(evt){
+                          var res = rpcObject.respawn(2);
+                          //res.addCallback(callback);
+
+                            });
+
+                var put_sampleButton = dojo.byId("putSample");
+
+                dojo.connect(put_sampleButton, "onclick",
+                         function(evt){
+                             dojo.query('> *', dojo.byId('sample')).forEach(dojo.destroy);
+                             rpcObject.putSample(dojo.toJson(sample));
+                             //res.addCallback(callback);
+
+                            });
+
+                setInterval(function() {
+                         var pop = rpcObject.readSample();
+                         pop.addCallback(readSample);
+                            },3000);
+                //add more callbacks, errbacks, etc.
+                //call sumOfSquares the very same way...
+                });
+
+
+
+</script>
+
+
+
+	</head>
+	<body>
+
+		<h1 id="head">EvoSpace Dashboard</h1>
+		
+		<ul id="navigation">
+			<li><span class="active">Dashboard</span></li>
+			<li><a href="#">Help</a></li>
+			<li><a href="#">About</a></li>
+		</ul>
+
+			<div id="content" class="container_16 clearfix">
+				<div class="grid_5">
+					<div class="box">
+						<h2>Server</h2>
+						 <div class="utils">
+							<!-- <a href="#">View More</a> -->
+						</div>
+						<p><strong>Last Signed In : </strong> Wed 11 Nov, 7:31<br /><strong>IP Address : </strong> 192.168.1.101</p>
+					</div>
+					<div class="box">
+						<h2>Current Population</h2>
+						<table>
+							<tbody id="currPop">
+
+							</tbody>
+						</table>
+					</div>
+					<div class="box">
+						<h2>Current Samples</h2>
+						<div class="utils">
+							<!--<a href="#">Inbox</a>-->
+						</div>
+						<p class="center">TO DO</p>
+					</div>
+				</div>
+
+				<div class="grid_6">
+					<div class="box">
+						<h2>My Sample</h2>
+						<div class="utils">
+							<!--<a href="#">View More</a>-->
+						</div>
+
+                        <table>
+							<tbody id="sample">
+				
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="grid_5">
+					<div class="box">
+						<h2>Actions</h2>
+						<div class="utils">
+							<!--<a href="#">View More</a>-->
+						</div>
+
+						<table>
+							<tbody>
+								<tr>
+									<td><button id="getJson" >Get new sample</button></td>
+
+								</tr>
+								<tr>
+									<td><button id="respawn" >Respawn</button></td>
+
+								</tr>
+                                <tr>
+									<td><button id="putSample" >Put sample back</button></td>
+
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+			</div>
+		<div id="foot">
+			<div class="container_16 clearfix">
+				<div class="grid_16">
+					This software is a prototype, be kind and send us your comments.
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -29,8 +29,13 @@ class Content:
     # process the data
         if obj["method"] == "getSample":
             result = EvoSpace.population.get_sample(obj["params"][0])
-        if obj["method"] == "sumOfSquares":
-            result = sum([i*i for i in obj["params"][0]])
+        if obj["method"] == "readSample":
+            result = EvoSpace.population.read_sample()
+        if obj["method"] == "respawn":
+            result = EvoSpace.population.respawn(obj["params"][0])
+        if obj["method"] == "putSample":
+            result = EvoSpace.population.put_sample(obj["params"][0])
+
     # return a json response
         cherrypy.response.headers['Content-Type']= 'text/json-comment-filtered'
         return str({"result" : result})
