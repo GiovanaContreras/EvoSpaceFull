@@ -59,7 +59,7 @@ class Population:
         self.sample_queue = self.name+":sample_queue"
 
     def individual_next_key(self):
-        key = r.incr(self.sample_counter)
+        key = r.incr(self.individual_counter)
         return self.name+":individual:%s" % key
 
     def initialize(self, initial_size = 20):
@@ -134,17 +134,6 @@ class Population:
 
 
 
-def init_population(population):
-    PALABRA = "Hello World"
-    population.initialize()
-    for i in range(population.initial_size):
-        chrome = [random.randint(1, 255) for i in range(len(PALABRA))]
-        key = population.individual_next_key()
-        population.put_individual(key, fitness={"DefaultContext":0.0 }, chromosome  = chrome )
-
-
-population = Population("pop")
-init_population(population)
 #for i in range(4):
 #    population.get_sample(5)
 
