@@ -41,7 +41,7 @@ def init_pop():
 
    # Genetic Algorithm Instance
    ga = GSimpleGA.GSimpleGA(genome)
-   ga.setPopulationSize(1000)
+   ga.setPopulationSize(10000)
    ga.setMinimax(Consts.minimaxType["minimize"])
    ga.stepCallback.set(init_func)
    ga.evolve(freq_stats=50)
@@ -89,7 +89,7 @@ def run_main():
    ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
    ga.setMinimax(Consts.minimaxType["minimize"])
 
-   ga.setGenerations(3000)
+   ga.setGenerations(10)
    ga.setCrossoverRate(0.8)
    ga.setPopulationSize(100)
    ga.setMutationRate(0.06)
@@ -102,7 +102,7 @@ def run_main():
 
 if __name__ == "__main__":
     init_pop()
-    for i in range(100): 
+    for i in range(1000):
         run_main()
 
   
