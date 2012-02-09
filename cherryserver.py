@@ -7,10 +7,15 @@ import EvoSpace
 
 
 
-#EvoSpace.init_population("pop")
+
 # a foo.html file will contain our Dojo code performing the XHR request
 # and that's all the following config directive is doing
+
+
 population = EvoSpace.Population("pop")
+#EvoSpace.init_population(population)
+
+
 current_dir = os.getcwd()
 config = {'/static' :
     {
@@ -18,6 +23,7 @@ config = {'/static' :
     'tools.staticdir.dir' :os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
     }
     }
+
 
 class Content:
     @cherrypy.expose
@@ -49,7 +55,7 @@ class Content:
 
 
 # start up the web server and have it listen on 8088
-cherrypy.config.update({'server.socket_host': '127.0.0.1',
+cherrypy.config.update({'server.socket_host': '0.0.0.0',
                         'server.socket_port': 8088
                        })
 cherrypy.quickstart(Content( ), '/', config=config)

@@ -89,6 +89,7 @@ class Population:
 #        result =  {'sample_id': self.name+":sample:%s" % sample_id ,
 #                   'sample':   [Individual(key).get(as_dict=True) for key in sample]}
 #        return json.dumps(result)
+
     def read_sample(self):
         sample = r.smembers(self.name)
         result =  { 'sample':   [Individual(key).get(as_dict=True) for key in sample]}
@@ -133,6 +134,15 @@ class Population:
                 self.respawn_sample( r.lpop(self.sample_queue))
 
 
+
+
+def init_population(population):
+    PALABRA = "Hello World"
+    population.initialize()
+    for i in range(population.initial_size):
+        chrome = [random.randint(1, 255) for i in range(len(PALABRA))]
+        key = population.individual_next_key()
+        population.put_individual(key, fitness={"DefaultContext":0.0 }, chromosome  = chrome )
 
 #for i in range(4):
 #    population.get_sample(5)

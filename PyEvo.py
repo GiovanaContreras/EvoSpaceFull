@@ -10,6 +10,8 @@ import jsonrpclib, json
 
 import math
 
+
+
 # This is the Rastrigin Function, a deception function
 def rastrigin(genome):
    n = len(genome)
@@ -41,9 +43,11 @@ def init_pop():
 
    # Genetic Algorithm Instance
    ga = GSimpleGA.GSimpleGA(genome)
-   ga.setPopulationSize(10000)
+   ga.setPopulationSize(1000)
    ga.setMinimax(Consts.minimaxType["minimize"])
    ga.stepCallback.set(init_func)
+   ga.setCrossoverRate(0.8)
+   ga.setMutationRate(0.06)
    ga.evolve(freq_stats=50)
 
 
@@ -52,12 +56,14 @@ def get_sample(ga_engine):
         if ga_engine.currentGeneration == 0:
             pop = ga_engine.getPopulation()
             server = jsonrpclib.Server('http://localhost:8088/EvoSpace')
-            sample =  json.loads(server.getSample(pop.popSize))
+            #sample =  json.loads(server.getSample(pop.popSize))
+            sample =  json.loads(server.getSample(100))
+
             ga_engine.sample_id = sample["sample_id"]
             for  i, individual  in enumerate(pop):
                 individual.genomeList = sample["sample"][i]["chromosome"]
                 individual.id = sample["sample"][i]["id"]
-                individual.fitness = sample["sample"][i]["fitness"]["DefaultContext"]
+                individual.score = sample["sample"][i]["fitness"]["DefaultContext"]
         return False
 
 def put_sample(ga_engine):
@@ -66,11 +72,11 @@ def put_sample(ga_engine):
             #server = jsonrpclib.Server('http://localhost:8088/EvoSpace')
             #sample =  json.loads(server.getSample(pop.popSize))
 
-            sample = [ {"chromosome":individual.genomeList,"id":None,"fitness":{"DefaultContext":individual.fitness} }
+            sample = [ {"chromosome":individual.genomeList,"id":None,"fitness":{"DefaultContext":individual.score} }
                         for individual in pop]
             result =  {'sample_id':ga_engine.sample_id ,
                    'sample':   sample}
-            print json.dumps(result)
+            #print json.dumps(result)
 
             server = jsonrpclib.Server('http://localhost:8088/EvoSpace')
             server.putSample(json.dumps(result))
@@ -89,20 +95,21 @@ def run_main():
    ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
    ga.setMinimax(Consts.minimaxType["minimize"])
 
-   ga.setGenerations(10)
+   ga.setGenerations(50)
    ga.setCrossoverRate(0.8)
    ga.setPopulationSize(100)
    ga.setMutationRate(0.06)
 
    ga.stepCallback.set(get_sample)
-   ga.evolve(freq_stats=100)
-   print ga.sample_id
-   best = ga.bestIndividual()
+   ga.evolve(freq_stats=10)
+   #print ga.sample_id
+   #best = ga.bestIndividual()
+   #print best
    put_sample(ga)
 
 if __name__ == "__main__":
     init_pop()
-    for i in range(1000):
+    for i in range(100):
         run_main()
 
   
