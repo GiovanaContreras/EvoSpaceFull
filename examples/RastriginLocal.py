@@ -26,9 +26,9 @@ def run_main():
    ga = GSimpleGA.GSimpleGA(genome)
    ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
    ga.setMinimax(Consts.minimaxType["minimize"])
-   ga.setGenerations(500)
+   ga.setGenerations(1000)
    ga.setCrossoverRate(0.8)
-   ga.setPopulationSize(500)
+   ga.setPopulationSize(50)
    ga.setMutationRate(0.06)
 
    ga.evolve(freq_stats=50)

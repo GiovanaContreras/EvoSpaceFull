@@ -43,7 +43,7 @@ def init_pop():
 
    # Genetic Algorithm Instance
    ga = GSimpleGA.GSimpleGA(genome)
-   ga.setPopulationSize(1000)
+   ga.setPopulationSize(500)
    ga.setMinimax(Consts.minimaxType["minimize"])
    ga.stepCallback.set(init_func)
    ga.setCrossoverRate(0.8)
@@ -57,7 +57,7 @@ def get_sample(ga_engine):
             pop = ga_engine.getPopulation()
             server = jsonrpclib.Server('http://localhost:8088/EvoSpace')
             #sample =  json.loads(server.getSample(pop.popSize))
-            sample =  json.loads(server.getSample(100))
+            sample =  json.loads(server.getSample(300))
 
             ga_engine.sample_id = sample["sample_id"]
             for  i, individual  in enumerate(pop):
@@ -82,34 +82,30 @@ def put_sample(ga_engine):
             server.putSample(json.dumps(result))
 
 def run_main():
-   # Genome instance
-   genome = G1DList.G1DList(20)
-   genome.setParams(rangemin=-5.2, rangemax=5.30, bestrawscore=0.00, rounddecimal=2)
-   genome.initializator.set(Initializators.G1DListInitializatorReal)
-   genome.mutator.set(Mutators.G1DListMutatorRealGaussian)
+# Genome instance
+    genome = G1DBinaryString.G1DBinaryString(120)
+    genome.evaluator.set(eval_func)
+    genome.mutator.set(Mutators.G1DBinaryStringMutatorFlip)
 
-   genome.evaluator.set(rastrigin)
+#genome.setParams(rangemin=0, rangemax=4.0, bestrawscore=4.0, rounddecimal=2)
+    ga = GSimpleGA.GSimpleGA(genome)
+    ga.selector.set(Selectors.GTournamentSelector)
 
-   # Genetic Algorithm Instance
-   ga = GSimpleGA.GSimpleGA(genome)
-   ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
-   ga.setMinimax(Consts.minimaxType["minimize"])
+    ga.setGenerations(200)
+    ga.setPopulationSize(10000)
+    ga.evolve(freq_stats=50)
 
-   ga.setGenerations(50)
-   ga.setCrossoverRate(0.8)
-   ga.setPopulationSize(100)
-   ga.setMutationRate(0.06)
-
-   ga.stepCallback.set(get_sample)
-   ga.evolve(freq_stats=10)
-   #print ga.sample_id
-   #best = ga.bestIndividual()
-   #print best
-   put_sample(ga)
+    put_sample(ga)
+    best = ga.bestIndividual()
+    print best
 
 if __name__ == "__main__":
     init_pop()
-    for i in range(100):
+    for i in range(15):
+        print "#######################"
+        print i
+        print "#######################"
+
         run_main()
 
   

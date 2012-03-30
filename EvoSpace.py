@@ -35,7 +35,8 @@ class Individual:
     def get(self, as_dict = False):
         if r.exists( self.key ):
             #Se evalua el texto almacenado en Redis
-            #Un diccionario para la aptitud y una lista para el cromosma
+            #Esto crea el tipo de dato correspondiente en python
+            #fitness es un diccionario y chromosome una lista
             self.fitness =  eval(r.hget(self.key ,'fitness'))
             self.chromosome = eval (r.hget( self.key ,'chromosome'))
         if as_dict:
@@ -57,16 +58,23 @@ class Population:
         self.sample_counter = self.name+':sample_count'
         self.individual_counter = self.name+':individual_count'
         self.sample_queue = self.name+":sample_queue"
+        self.is_active = False
+
+    def deactivate(self):
+        self.is_active = False
 
     def individual_next_key(self):
         key = r.incr(self.individual_counter)
         return self.name+":individual:%s" % key
 
-    def initialize(self, initial_size = 20):
-        self.initial_size = initial_size
+    def size(self):
+        return r.scard(self.name)
+
+    def initialize(self):
         r.flushall()
         r.setnx(self.sample_counter,0)
         r.setnx(self.individual_counter,0)
+        self.is_active = True
 
     def get_sample(self, size):
         sample_id = r.incr(self.sample_counter)
@@ -96,6 +104,11 @@ class Population:
         return json.dumps(result)
 
     def put_individual(self, key = None , fitness = {}  , chromosome  = None , from_dict = None ):
+        if isinstance(from_dict,str):
+            from_dict = json.loads(from_dict)
+
+        if from_dict and from_dict['id'] is None:
+            from_dict['id'] = self.name+":individual:%s" % r.incr(self.individual_counter)
         ind = Individual( key, fitness = fitness , chromosome  = chromosome, from_dict = from_dict)
         ind.put(self.name)
 
@@ -136,13 +149,6 @@ class Population:
 
 
 
-def init_population(population):
-    PALABRA = "Hello World"
-    population.initialize()
-    for i in range(population.initial_size):
-        chrome = [random.randint(1, 255) for i in range(len(PALABRA))]
-        key = population.individual_next_key()
-        population.put_individual(key, fitness={"DefaultContext":0.0 }, chromosome  = chrome )
 
 #for i in range(4):
 #    population.get_sample(5)
@@ -167,7 +173,7 @@ def init_population(population):
 #                      {'id':'chromosome:','fitness':{ "DefaultContex": 0.0, "User1":0.3,  },'chromosome':[12,12,12,12,312,23,23,23,21,23]},
 #                      {'id':'chromosome:','fitness':0.0,'chromosome':[33,13,12,12,312,23,23,23,21,23]}
 #                      ],
-#          'server':['server1.protoboard.com']
+#         
 #         }
 #
 #population1 = {'population_id':'population' ,
