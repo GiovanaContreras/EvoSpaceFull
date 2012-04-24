@@ -39,6 +39,6 @@ ga.setMutationRate(0.0)
 ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
 
 ga.setGenerations(1000)
-ga.setPopulationSize(150)
+ga.setPopulationSize(10000)
 ga.evolve(freq_stats=2)
-print ga.bestIndividual()
+print ga.bestIndividual( )

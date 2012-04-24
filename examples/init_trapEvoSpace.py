@@ -39,4 +39,4 @@ def init_pop(binaryStringSize,populationSize ):
 
 
 if __name__ == "__main__":
-        init_pop(40, 10000)
+        init_pop(40, 1000)

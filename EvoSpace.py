@@ -1,6 +1,6 @@
 __author__ = 'mario'
 
-HOST = '127.0.0.1'
+HOST = '192.168.1.19'
 PORT = 6379
 DB = 0
 
@@ -24,8 +24,8 @@ class Individual:
     def put(self, population):
         pipe = r.pipeline()
         if pipe.sadd( population, self.key ):
-            pipe.hset( self.key ,'fitness' , self.fitness )
-            pipe.hset( self.key ,'chromosome', self.chromosome)
+            pipe.set( self.key , {'id':self.key,'fitness':self.fitness,'chromosome':self.chromosome} )
+           # pipe.hset( self.key ,'chromosome', self.chromosome)
             pipe.execute()
             return True
         else:
@@ -33,14 +33,14 @@ class Individual:
 
         
     def get(self, as_dict = False):
-        if r.exists( self.key ):
             #Se evalua el texto almacenado en Redis
             #Esto crea el tipo de dato correspondiente en python
             #fitness es un diccionario y chromosome una lista
-            self.fitness =  eval(r.hget(self.key ,'fitness'))
-            self.chromosome = eval (r.hget( self.key ,'chromosome'))
+        dict = eval(r.get(self.key))
+        self.fitness =  dict['fitness']
+        self.chromosome = dict['chromosome']
         if as_dict:
-            return {'id':self.key,'fitness':self.fitness,'chromosome':self.chromosome}
+            return dict
         else:
             return self
 
@@ -53,13 +53,14 @@ class Individual:
 
 
 class Population:
-    def __init__(self, name = "population" ):
+    def __init__(self, name = "pop" ):
         self.name = name
         self.sample_counter = self.name+':sample_count'
         self.individual_counter = self.name+':individual_count'
         self.sample_queue = self.name+":sample_queue"
+        #Esta es una propiedad del EvoSpaceServer NO de la poblacion
         self.is_active = False
-
+    ##NOOO Aqui
     def deactivate(self):
         self.is_active = False
 
@@ -74,6 +75,7 @@ class Population:
         r.flushall()
         r.setnx(self.sample_counter,0)
         r.setnx(self.individual_counter,0)
+        ##NOOO Aqui
         self.is_active = True
 
     def get_sample(self, size):
@@ -89,7 +91,7 @@ class Population:
         result = r.lrange(self.sample_queue,0,-1)
         return json.dumps(result)
 #####
-##### Read Sample es get POP
+##### Read Sample es ReadALL Pop
 #####
 #    def read_sample(self, size):
 #        sample_id = r.incr(self.sample_counter)
@@ -170,7 +172,7 @@ class Population:
 #
 #sample1 = {'sample_id':'sample:69' ,
 #          'sample':   [
-#                      {'id':'chromosome:','fitness':{ "DefaultContex": 0.0, "User1":0.3,  },'chromosome':[12,12,12,12,312,23,23,23,21,23]},
+#                      {'id':'chromosome:','fitness':{ "DefaultContext": 0.0, "User1":0.3,  },'chromosome':[12,12,12,12,312,23,23,23,21,23]},
 #                      {'id':'chromosome:','fitness':0.0,'chromosome':[33,13,12,12,312,23,23,23,21,23]}
 #                      ],
 #         

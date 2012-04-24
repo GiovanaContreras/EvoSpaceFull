@@ -27,10 +27,12 @@ def setupWorkers():
     #vm("stop","nogui")
     put('examples/TrapWorker.py')
     put('examples/trap.py')
-    run('nohup python TrapWorker.py > trap.out &')
+    # Mejor con panamiko aunque sin nice output
+    #out = run('nohup python TrapWorker.py > trap.out &')
+
     #print out
 
-def setupVMs():
+def setupMachines():
     vm("start")
     vm_list()
 

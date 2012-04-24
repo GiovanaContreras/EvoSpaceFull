@@ -116,10 +116,10 @@ class Worker(object):
                 break
 
 if __name__ == "__main__":
-    worker = Worker(sampleSize=80,generations=100,
+    worker = Worker(sampleSize=50,generations=100,
         binaryStringSize=40,kTrap = 4,returnProb = 0.1,sleepProb = 0.05, sleepTime = 40,
         crossoverRate=0.8,
-        mutationRate=0.03,
+        mutationRate=0.06,
         maxEvolutions = 1000,
         EvoSpaceURL='http://172.16.51.1:8088/EvoSpace')
     worker.run_main()
