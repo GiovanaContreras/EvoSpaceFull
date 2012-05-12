@@ -1,7 +1,7 @@
 __author__ = 'mariosky'
 
 def trap(u, a=0.75, b=1, z=3 , l=4):
-    if (sum(u)  <= z ):
+    if sum(u)  <= z :
         return (a/z) * (z - sum(u))
     else:
         return (b/(l-z))*(sum(u)-z)

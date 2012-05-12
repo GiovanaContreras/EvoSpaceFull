@@ -1,8 +1,5 @@
 __author__ = 'mariosky'
 
-from EvoSpace import Individual
-import scipy.spatial.distance as distance
-import numpy
 import ast
 
 ## Hamming Distance de una lista de vectores binarios
@@ -11,11 +8,11 @@ import ast
 
 
 
-import redis, time , json, random
+import redis, time
 
 
 class EvoSpaceManager(object):
-    def __init__(self, pop_name = "pop", HOST = '192.168.1.19',PORT = 6379,DB = 0):
+    def __init__(self, pop_name = "pop", HOST = '127.0.0.1',PORT = 6379,DB = 0):
         self.pop_name = pop_name
         self.r = redis.Redis(host=HOST, port=PORT, db=DB)
 
@@ -33,13 +30,13 @@ class EvoSpaceManager(object):
             print time.clock(), "diversidad"
             #print max([ ast.literal_eval(d)["fitness"]["DefaultContext"]   for d in pop])
 
-            diversidad = sum(distance.pdist([i["chromosome"] for i in pop],'hamming')*len(pop[0]["chromosome"]))
+            #diversidad = sum(distance.pdist([i["chromosome"] for i in pop],'hamming')*len(pop[0]["chromosome"]))
             #maxFitness = max(k for k in sample)
             #pop = numpy.array(pop)
 
             #print "Diversidad: " + str(diversidad) + " Fitness:"  +str(maxFitness )
             #print pop[0]
-            print diversidad
+            #print diversidad
         #    print time.clock()
 
 

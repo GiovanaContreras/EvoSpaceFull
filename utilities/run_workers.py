@@ -8,6 +8,6 @@ for host in hosts:
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(host,username='user',password='masterkey')
-    (stdin, stdout, stderr) = client.exec_command('nohup python TrapWorker.py > trap.out &')
+    (stdin, stdout, stderr) = client.exec_command('nohup python trap_worker.py > trap.out &')
 
 client.close();

@@ -1,7 +1,7 @@
 __author__ = 'mariosky'
 from pyevolve import GSimpleGA
 from pyevolve import G1DBinaryString
-from pyevolve import Mutators, Initializators
+from pyevolve import Mutators
 from pyevolve import Crossovers
 from pyevolve import Selectors
 
@@ -34,11 +34,11 @@ genome.crossover.set(Crossovers.G1DBinaryStringXSinglePoint)
 
 ga = GSimpleGA.GSimpleGA(genome)
 ga.selector.set(Selectors.GTournamentSelector)
-ga.setCrossoverRate(1.0)
-ga.setMutationRate(0.0)
+ga.setCrossoverRate(0.8)
+ga.setMutationRate(0.06)
 ga.terminationCriteria.set(GSimpleGA.RawScoreCriteria)
 
-ga.setGenerations(1000)
-ga.setPopulationSize(10000)
+ga.setGenerations(100)
+ga.setPopulationSize(100)
 ga.evolve(freq_stats=2)
 print ga.bestIndividual( )

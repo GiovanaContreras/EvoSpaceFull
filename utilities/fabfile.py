@@ -25,10 +25,10 @@ def vm_list():
 @parallel
 def setupWorkers():
     #vm("stop","nogui")
-    put('examples/TrapWorker.py')
+    put('examples/trap_worker.py')
     put('examples/trap.py')
     # Mejor con panamiko aunque sin nice output
-    #out = run('nohup python TrapWorker.py > trap.out &')
+    #out = run('nohup python trap_worker.py > trap.out &')
 
     #print out
 
@@ -39,6 +39,6 @@ def setupMachines():
 
 def setupServers():
     local('redis-server')
-    local('python cherryserver.py')
+    local('python cherry_server.py')
 
 

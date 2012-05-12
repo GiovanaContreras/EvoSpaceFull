@@ -3,21 +3,22 @@ __author__ = 'mario'
 
 import cherrypy
 import os, json
-import EvoSpace
 import sys
+from evospace import evospace
 
 current_dir = os.getcwd()
 config = {'/static' :
     {
     'tools.staticdir.on' : True,
     'tools.staticdir.dir' :os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
-    }
+
+              }
     }
 
 
 class Content:
     def __init__(self, popName = "pop" ):
-        self.population = EvoSpace.Population(popName)
+        self.population = evospace.Population(popName)
         self.population.initialize()
         self.population.is_active = True
 
@@ -81,6 +82,9 @@ if __name__ == '__main__':
 
     cherrypy.config.update({'server.socket_host': '0.0.0.0',
                             'server.socket_port': 8088
+        ,'server.environment':  'production'
+    ,'server.thread_pool':   200
+    ,'tools.sessions.on':    False
                            })
     cherrypy.quickstart(Content(popName), '/', config=config)
 
