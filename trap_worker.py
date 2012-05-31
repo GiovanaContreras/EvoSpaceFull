@@ -36,7 +36,7 @@ class Worker(object):
         self.mutation_rate = mutation_rate
         self.evospace_URL = evospace_URL
         self.server = jsonrpclib.Server(self.evospace_URL)
-        self.best_raw_score = binary_string_size/k_trap
+        self.best_raw_score = 20 #binary_string_size/k_trap
         self.worker_id = worker_id
         self.sample_id = 0
         self.run_num = run_number

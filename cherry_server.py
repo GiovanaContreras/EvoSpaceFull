@@ -2,19 +2,29 @@
 __author__ = 'mario'
 
 import cherrypy
+from cherrypy._cpcompat import ntou
+
 import os, json
 import sys
 from evospace import evospace
 
 current_dir = os.getcwd()
-config = {'/static' :
+config = {
+    '/static' :
     {
     'tools.staticdir.on' : True,
     'tools.staticdir.dir' :os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
 
-              }
-    }
+              },
+    '/prototype' :
+            {
+            'tools.staticdir.on' : True,
+            'tools.staticdir.dir' :os.path.abspath(os.path.join(os.path.dirname(__file__), 'prototype'))
 
+        }
+
+
+    }
 
 class Content:
     def __init__(self, popName = "pop" ):
@@ -24,11 +34,13 @@ class Content:
 
 
     @cherrypy.expose
+    @cherrypy.tools.json_in(content_type=[ntou('application/json'),
+                                          ntou('text/javascript'),
+                                          ntou('application/json-rpc')
+                                          ])
     def EvoSpace(self):
-    # read the raw POST data
-        rawPost = cherrypy.request.body.read( )
-    # cast to object
-        obj = json.loads(rawPost)
+        # if cherrypy.request.json ??
+        obj = cherrypy.request.json
         method = obj["method"]
         params = obj["params"]
         id     = obj["id"]
@@ -45,7 +57,7 @@ class Content:
 
         if self.population.is_active:
             if method == "getSample":
-                result = self.population.get_sample(*params)
+                result = self.population.get_sample(params[0])
             if method == "readSample":
                 result = self.population.read_sample()
             if method == "respawn":
