@@ -21,7 +21,7 @@ def init_func(ga_engine):
     pop = ga_engine.getPopulation()
     for individual in pop:
         chrome = individual.genomeList
-        individual = {'id':None,'fitness':{"DefaultContext":-1.0 },'chromosome':chrome}
+        individual = {'id':None,'fitness':{"DefaultContext":0.0 },'chromosome':chrome}
         server.put_individual(individual)
     return True
 

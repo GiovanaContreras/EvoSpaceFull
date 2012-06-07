@@ -23,8 +23,9 @@
 	<link rel="stylesheet" href="stylesheets/layout.css">
     <link rel="Stylesheet" href="stylesheets/wHumanMsg.css" />
     <link rel="stylesheet" href="stylesheets/prototype.css">
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 
-	<!--[if lt IE 9]>
+    <!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 
@@ -47,6 +48,7 @@
 	<script type="text/javascript" src="js/jquery.prettyPhoto.js"></script>
 	<script type="text/javascript" src="js/jquery.prettyPhoto.setting.js"></script>
     <script type="text/javascript" src="js/wHumanMsg.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 	<script src="js/processing-1.3.6.min.js" type="text/javascript"></script>
 
 	<!-- Scripts
@@ -57,9 +59,19 @@
 	
 	 $(document).ready(function () {
 
+         var $dialog = $('<div></div>')
+                 .dialog({
+                     autoOpen: false,
+                     title: 'Fitness Details',
+                     modal:true
+                 });
+
+
+
          var hm = $("body").wHumanMsg();
 
-		
+
+
 		 $('.grid-item.slidedown').hover(function(){  
 		        $(".cover", this).stop().animate({top:'5px', left:'4px'},{queue:false,duration:300});
 		    }, function() {  
@@ -71,23 +83,50 @@
 		    }, function() {  
 		        $(".cover", this).stop().animate({top:'260px',left:'4px'},{queue:false,duration:300});
 		    });
-		
-		
-		$("canvas").click(function () {
+
+
+
+         $("canvas").click(function () {
 			$(this).toggleClass("ilike");
 			
 			    });
+
+
+         $(".fitness").click(function ()
+         {
+
+             var slot_index = $(this)[0].parentElement.previousSibling.previousSibling.id.substr(4);
+
+             var details ="";
+             for (var index in sample.sample[slot_index].fitness){
+                 details+= "<p>"+ index +": "+sample.sample[slot_index].fitness[index]+"</p>";
+             }
+             $dialog.html(details);
+             $dialog.dialog('open');
+             return false;
+
+         });
 		
 		$("#get_more").click(function () {
 
                 var individuals = $(".ilike").length;
-				$(".ilike").each(
-      				function(i, element){
+
+                $("canvas").each(
+                function(i, element){
                     slot_index = element.id.substr(4);
 					timestamp = Date.now()
-                    sample.sample[slot_index].fitness["Context:"+timestamp] = 1;
-                    $(this).toggleClass("ilike");
-					});
+                    if ( $(this).hasClass("ilike"))
+                        {
+                        sample.sample[slot_index].fitness["Context:"+timestamp] = 1;
+                        $(this).toggleClass("ilike");
+					    }
+                    else{
+                        sample.sample[slot_index].fitness["Context:"+timestamp] = -1;
+                    }
+                }
+                    );
+
+
 				//Put them back
 				$.ajax(
 						{   
@@ -102,12 +141,15 @@
 										//	alert(sample.sample[0].chromosome);
 											},
 
+
 						   error: function(jqXHR, textStatus, errorThrown)  {
 							       alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
 
 
 							});
                 //Get More!
+
+
                 dataRequest();
                 hm.wHumanMsg('Likes:'+ individuals + ', new paintings received',{color: 'yellow',  displayLength: 400});
 				
@@ -138,7 +180,15 @@
 						       					Array.prototype.push.apply(chrome, sample.sample[i].chromosome);
 												pjs.draw();
                                                 slot_index = element.id.substr(4);
-                                                element.nextElementSibling.childNodes[1].textContent = sample.sample[slot_index].id;
+                                                element.nextElementSibling.childNodes[1].textContent =
+                                                               "paint:"+sample.sample[slot_index].id.substr(15);
+                                                
+                                                var suma = 0;
+                                                for (var index in sample.sample[slot_index].fitness){
+                                                    suma+=sample.sample[slot_index].fitness[index];
+                                                }
+
+                                                element.nextElementSibling.childNodes[3].textContent= " fitness:"+suma ;
                                                 //alert(slot_index);
                                                 //alert(element.nextElementSibling.childNodes[0].textContent)
                                                  //= sample.sample[slot_index].id;
@@ -181,8 +231,8 @@
 		<div class='four columns grid-item slideup'>
 		<canvas id="slot0" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 			<div class="cover boxcaption">
-					<span class="paint_name"> </span>
-					<button>Save It</button>
+					<span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
 			</div>
 
 		</div>
@@ -192,31 +242,33 @@
 		<canvas id="slot1" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 				<div class="cover boxcaption">
                     <span class="paint_name"> </span>
-						<button>Save It</button>
+                    <a class="fitness" title="show ratings"> </a>
 				</div>
 		</div>
 		
 		<div class='four columns grid-item slideup'>
 		<canvas id="slot2" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
-			<div class="cover boxcaption">
-                    <span class="paint_name"> </span>
-					<button>Save It</button>
-			</div>
+            <div class="cover boxcaption">
+                    <span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
+            </div>
 		</div>
 		
 		<div class='four columns grid-item slideup'>
 		<canvas id="slot3" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 				<div class="cover boxcaption">
-                    <span class="paint_name"> </span>
-					<button>Save It</button>
+                    <span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
+
 				</div>
 		</div>
 		
 		<div class='four columns grid-item slideup'>
 		<canvas id="slot4" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 				<div class="cover boxcaption">
-                    <span class="paint_name"> </span>
-						<button>Save It</button>
+                    <span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
+
 				</div>
 	
 		</div>
@@ -225,8 +277,9 @@
 		<div class='four columns grid-item  slideup'>
 		<canvas id="slot5" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 				<div class="cover boxcaption">
-                    <span class="paint_name"> </span>
-                    <button>Save It</button>
+                    <span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
+
 				</div>
 	
 		</div>
@@ -234,18 +287,20 @@
 		<div class='four columns grid-item  slideup'>
 		<canvas id="slot6" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 				<div class="cover boxcaption">
-                    <span class="paint_name"> </span>
-                    <button>Save It</button>
+                    <span class="paint_name">                </span>
+                    <a class="fitness" title="show ratings"> </a>
+
 				</div>
 		</div>
 		
 		<div class='four columns grid-item   slideup'>
 		<canvas id="slot7" data-processing-sources="pde_scripts/sketchVasarelly.pde"></canvas>
 					<div class="cover boxcaption">
-                        <span class="paint_name"> </span>
-                        <button>Save It</button>
+                        <span class="paint_name">                </span>
+                        <a class="fitness" title="show ratings"> </a>
+
 					</div>
-            adsfasdfasdfasdf
+
 		</div>		
 		
 		
@@ -254,6 +309,8 @@
 	</div><!-- container -->
 
 
+
+    </div>
 
 	<!-- JS
 	================================================== 

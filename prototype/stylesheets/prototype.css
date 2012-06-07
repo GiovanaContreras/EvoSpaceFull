@@ -8,6 +8,12 @@ body{
 
 }
 
+a.fitness , a.fitness :link, a.fitness :visited
+{
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
+}
 
 /* Grid Items
 ================================================== */
