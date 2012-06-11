@@ -62,9 +62,6 @@ class Worker(object):
             pop = ga_engine.getPopulation()
             stats = pop.getStatistics()
             print self.run_num,self.worker_id,ga_engine.sample_id, ga_engine.currentGeneration,stats["rawMax"], stats["rawMin"], stats["rawAve"]
-
-
-
         return False
 
     def put_sample(self,ga_engine):
