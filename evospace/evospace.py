@@ -1,13 +1,19 @@
 __author__ = 'mario'
 
-HOST = '127.0.0.1'
-PORT = 6379
-DB = 0
 
 LOGGING = True
 LOG_INTERVAL = 10
 
+import ConfigParser
 import redis, json
+
+
+config = ConfigParser.ConfigParser()
+config.read("config/evospace.cfg")
+
+HOST = config.get('redis', 'HOST')
+PORT = config.getint('redis', 'PORT')
+DB = config.getint('redis', 'DB')
 
 r = redis.Redis(host=HOST, port=PORT, db=DB)
 

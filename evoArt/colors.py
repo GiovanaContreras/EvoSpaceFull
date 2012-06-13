@@ -41,6 +41,44 @@ def put_sample(sample_id, sample,  evospace_URL = 'http://localhost:8088/EvoSpac
     server.putSample(json.dumps(result))
 
 
+
+def crossVertical(papa,mama):
+    papa["chromosome"] = numpy.array(papa["chromosome"]).reshape(11,6)
+    mama["chromosome"] = numpy.array(mama["chromosome"]).reshape(11,6)
+
+    cut = random.randint(0,10)
+
+    if cut == 0: #Si la dimension es 1
+        papa_cut1 = papa["chromosome"][cut,0:5]
+        mama_cut1 = mama["chromosome"][cut,0:5]
+        papa_cut2 = papa["chromosome"][cut+1:,0:5]
+        mama_cut2 = mama["chromosome"][cut+1:,0:5]
+        child1 = numpy.hstack( ( papa_cut1[:,numpy.newaxis], mama_cut2))
+        child2 = numpy.hstack( ( papa_cut2, mama_cut1[:,numpy.newaxis] ))
+    else:
+        papa_cut1 = papa["chromosome"][0:cut,:]
+        mama_cut1 = mama["chromosome"][0:cut,:]
+        papa_cut2 = papa["chromosome"][cut:,:]
+        mama_cut2 = mama["chromosome"][cut:,:]
+        child1 = numpy.hstack( ( papa_cut1, mama_cut2))
+        child2 = numpy.hstack( ( papa_cut2, mama_cut1 ))
+    print papa["chromosome"]
+    print papa_cut1
+    print mama_cut2
+    papa["chromosome"] = papa["chromosome"].reshape(66).tolist()
+    mama["chromosome"] = mama["chromosome"].reshape(66).tolist()
+    child1 = {'id':None,'fitness':{"DefaultContext":0.0 },
+              'chromosome':child1.reshape(66).tolist(),
+              'papa': papa["id"], 'mama':mama["id"] ,
+              'crossover':'crossHorizontal:'+str(cut) }
+
+    child2 = {'id':None,'fitness':{"DefaultContext":0.0 },
+              'chromosome':child2.reshape(66).tolist(),
+              'papa': papa["id"], 'mama':mama["id"],
+              'crossover':'crossHorizontal:'+str(cut) }
+    return child1,child2
+
+
 def crossHorizontal(papa,mama):
     papa["chromosome"] = numpy.array(papa["chromosome"]).reshape(11,6)
     mama["chromosome"] = numpy.array(mama["chromosome"]).reshape(11,6)
@@ -130,7 +168,8 @@ def evolve(sample_size = 8, evospace_URL = 'http://localhost:8088/EvoSpace' ):
     pop = calc_fitness(sample)
     offspring = sel_best(pop,sample_size/2)
 
-    crossFunctions = [crossHorizontal,crossMirrorH,crossMirrorV]
+    crossFunctions = [crossVertical]
+    #crossFunctions = [crossVertical,crossHorizontal,crossMirrorH,crossMirrorV]
     for papa, mama in zip(offspring[::2], offspring[1::2]):
         offspring.extend(random.choice(crossFunctions)(papa,mama))
 
@@ -141,8 +180,7 @@ def evolve(sample_size = 8, evospace_URL = 'http://localhost:8088/EvoSpace' ):
 
 
 if __name__ == "__main__":
-
-    #init_pop(0,11, 66,32)
+    init_pop(0,11, 66,32)
     evolve()
 
 

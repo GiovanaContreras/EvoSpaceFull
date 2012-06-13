@@ -102,10 +102,12 @@ class Content:
 
 if __name__ == '__main__':
     #Read run config file
-    config = ConfigParser.ConfigParser()
-    config.read("config/evospace.cfg")
-    port = config.getint('server', 'port')
-    evospace_URL = config.get('server', 'evospace')
+    myconfig = ConfigParser.ConfigParser()
+    myconfig.read("config/evospace.cfg")
+    port = myconfig.getint('evospace', 'port')
+    evospace_URL = myconfig.get('evospace', 'evospace')
+    popName = myconfig.get('evospace', 'popName')
+
     cherrypy.config.update({'server.socket_host': '0.0.0.0',
                             'server.socket_port': port
         ,'server.environment':  'production'

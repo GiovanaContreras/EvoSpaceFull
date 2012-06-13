@@ -22,18 +22,6 @@ def run(configuration , times ):
     min_pop_size = config.getint('respawn', 'min_pop_size')
 
     #Worker config
-    #run_number=sys.argv[1],
-    #worker_id=sys.argv[2],
-
-    #sample_size=sys.argv[3],
-    #generations_per_worker=sys.argv[4],
-    #binary_string_size=sys.argv[5],
-    #k_trap= sys.argv[6],
-
-
-
-
-
     number_of_workers = config.getint('workers', 'number_of_workers')
     sample_size = config.getint('workers', 'sample_size')
     generations_per_worker = config.getint('workers', 'generations_per_worker')
