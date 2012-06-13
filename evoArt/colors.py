@@ -7,7 +7,6 @@ __author__ = 'mariosky'
 import numpy, random, jsonrpclib, json
 
 
-
 def current_fitness(fitness):
     return sum([fitness[k] for k in fitness])
 
@@ -126,8 +125,8 @@ def crossMirrorV(papa,mama):
 
     return child1,child2
 
-def evolve(sample_size = 8 ):
-    sample = get_sample(sample_size)
+def evolve(sample_size = 8, evospace_URL = 'http://localhost:8088/EvoSpace' ):
+    sample = get_sample(sample_size,  evospace_URL = evospace_URL)
     pop = calc_fitness(sample)
     offspring = sel_best(pop,sample_size/2)
 
@@ -135,7 +134,7 @@ def evolve(sample_size = 8 ):
     for papa, mama in zip(offspring[::2], offspring[1::2]):
         offspring.extend(random.choice(crossFunctions)(papa,mama))
 
-    put_sample(sample["sample_id"], offspring )
+    put_sample(sample["sample_id"], offspring,  evospace_URL = evospace_URL )
 
 
 

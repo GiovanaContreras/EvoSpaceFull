@@ -5,7 +5,8 @@ import cherrypy
 from cherrypy._cpcompat import ntou
 
 import os, json
-import sys
+
+import ConfigParser
 from evospace import evospace
 from evoArt.colors import init_pop, evolve
 
@@ -29,10 +30,11 @@ config = {
     }
 
 class Content:
-    def __init__(self, popName = "pop" ):
+    def __init__(self, popName = "pop", evospace_URL=  'http://localhost:8088/EvoSpace' ):
         self.population = evospace.Population(popName)
         self.population.initialize()
         self.population.is_active = True
+        self.evospace_URL= evospace_URL
 
 
     @cherrypy.expose
@@ -79,9 +81,9 @@ class Content:
                 result = self.population.size()
             ###evoArt App
             elif method == "init_pop":
-                result = init_pop(populationSize=params[0])
+                result = init_pop(populationSize=params[0],evospace_URL= self.evospace_URL)
             elif method == "evolve":
-                result = evolve(sample_size=params[0])
+                result = evolve(sample_size=params[0],evospace_URL= self.evospace_URL )
 
 
             return json.dumps({"result" : result,"error": None, "id": id})
@@ -99,17 +101,16 @@ class Content:
         return "Servidor Funcionando"
 
 if __name__ == '__main__':
-    # start up the web server and have it listen on 8088
-    if len(sys.argv) == 2:
-        popName = sys.argv[1]
-    else:
-        popName = "pop"
-
+    #Read run config file
+    config = ConfigParser.ConfigParser()
+    config.read("config/evospace.cfg")
+    port = config.getint('server', 'port')
+    evospace_URL = config.get('server', 'evospace')
     cherrypy.config.update({'server.socket_host': '0.0.0.0',
-                            'server.socket_port': 8088
+                            'server.socket_port': port
         ,'server.environment':  'production'
     ,'server.thread_pool':   200
     ,'tools.sessions.on':    False
                            })
-    cherrypy.quickstart(Content(popName), '/', config=config)
+    cherrypy.quickstart(Content(popName,evospace_URL ), '/', config=config)
 
