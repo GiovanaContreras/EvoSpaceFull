@@ -7,6 +7,8 @@ from cherrypy._cpcompat import ntou
 import os, json
 import sys
 from evospace import evospace
+from evoArt.colors import init_pop, evolve
+
 
 current_dir = os.getcwd()
 config = {
@@ -58,18 +60,29 @@ class Content:
         if self.population.is_active:
             if method == "getSample":
                 result = self.population.get_sample(params[0])
-            if method == "readSample":
+                if result:
+                    return json.dumps({"result" : result,"error": None, "id": id})
+                else:
+                    return json.dumps({"result" : None,"error":
+                            {"code": -32601, "message": "EvoSpace empty"}, "id": id})
+            elif method == "readSample":
                 result = self.population.read_sample()
-            if method == "respawn":
+            elif method == "respawn":
                 result = self.population.respawn(params[0])
-            if method == "putSample":
+            elif method == "putSample":
                 result = self.population.put_sample(params[0])
-            if method == "put_individual":
-                result = self.population.put_individual(from_dict = params[0])
-            if method == "deactivate":
+            elif method == "put_individual":
+                result = self.population.put_individual(**params[0])
+            elif method == "deactivate":
                 result = self.population.deactivate()
-            if method == "size":
+            elif method == "size":
                 result = self.population.size()
+            ###evoArt App
+            elif method == "init_pop":
+                result = init_pop(populationSize=params[0])
+            elif method == "evolve":
+                result = evolve(sample_size=params[0])
+
 
             return json.dumps({"result" : result,"error": None, "id": id})
 

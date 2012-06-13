@@ -12,23 +12,18 @@ import redis, json
 r = redis.Redis(host=HOST, port=PORT, db=DB)
 
 class Individual:
-    def __init__(self, key = None , fitness = {}  , chromosome  = None , from_dict = None):
+    def __init__(self, **kwargs):
         ## Se puede inicializar desde un diccionario
-        if from_dict:
-            self.key = from_dict['id']
-            self.fitness = from_dict['fitness']
-            self.chromosome = from_dict['chromosome']
-        else:
-        ## Se tiene minimo la llave
-            self.key = key
-            self.fitness = fitness
-            self.chromosome = chromosome
+
+        self.id = kwargs['id']
+        self.fitness = kwargs.get('fitness',{})
+        self.chromosome = kwargs.get('chromosome',[])
+        self.__dict__.update(kwargs)
 
     def put(self, population):
         pipe = r.pipeline()
-        if pipe.sadd( population, self.key ):
-            pipe.set( self.key , {'id':self.key,'fitness':self.fitness,'chromosome':self.chromosome} )
-            # pipe.hset( self.key ,'chromosome', self.chromosome)
+        if pipe.sadd( population, self.id ):
+            pipe.set( self.id , self.__dict__ )
             pipe.execute()
             return True
         else:
@@ -39,22 +34,19 @@ class Individual:
             #Se evalua el texto almacenado en Redis
             #Esto crea el tipo de dato correspondiente en python
             #fitness es un diccionario y chromosome una lista
+        dict = eval(r.get(self.id))
+        self.__dict__.update(dict)
 
-        dict = eval(r.get(self.key))
-
-        self.fitness =  dict['fitness']
-        self.chromosome = dict['chromosome']
         if as_dict:
-            return dict
+            return self.__dict__
         else:
             return self
 
-
     def __repr__(self):
-        return self.key +":"+ str(self.fitness) +":" + str( self.chromosome)
+        return self.id +":"+ str(self.fitness) +":" + str( self.chromosome)
 
     def as_dict(self):
-        return {'id':self.key , 'fitness':self.fitness ,'chromosome':self.chromosome}
+        return self.__dict__
 
 
 class Population:
@@ -67,6 +59,7 @@ class Population:
         self.log_queue = self.name+":log_queue"
         #Esta es una propiedad del EvoSpaceServer NO de la poblacion
         self.is_active = False
+
     ##NOOO Aqui
     def deactivate(self):
         self.is_active = False
@@ -94,9 +87,9 @@ class Population:
         r.rpush(self.sample_queue, self.name+":sample:%s" % sample_id)
         try:
             result =  {'sample_id': self.name+":sample:%s" % sample_id ,
-                   'sample':   [Individual(key).get(as_dict=True) for key in sample]}
+                   'sample':   [Individual(id=key).get(as_dict=True) for key in sample]}
         except:
-            print sample
+            return None
         return json.dumps(result)
 
     def read_sample_queue(self):
@@ -114,16 +107,18 @@ class Population:
 
     def read_sample(self):
         sample = r.smembers(self.name)
-        result =  { 'sample':   [Individual(key).get(as_dict=True) for key in sample]}
+        result =  { 'sample':   [Individual(id=key).get(as_dict=True) for key in sample]}
         return json.dumps(result)
 
-    def put_individual(self, key = None , fitness = {}  , chromosome  = None , from_dict = None ):
-        if isinstance(from_dict,str):
-            from_dict = json.loads(from_dict)
+    def put_individual(self, **kwargs ):
 
-        if from_dict and from_dict['id'] is None:
-            from_dict['id'] = self.name+":individual:%s" % r.incr(self.individual_counter)
-        ind = Individual( key, fitness = fitness , chromosome  = chromosome, from_dict = from_dict)
+        #Esto debe hacerse fueran, recibe un diccionario y punto.
+        #if isinstance(from_dict,str):
+        #    from_dict = json.loads(from_dict)
+
+        if kwargs['id'] is None:
+            kwargs['id'] = self.name+":individual:%s" % r.incr(self.individual_counter)
+        ind = Individual(**kwargs)
         ind.put(self.name)
 
     def put_sample(self,sample):
@@ -141,7 +136,8 @@ class Population:
             for member in sample['sample']:
                 if member['id'] is None:
                     member['id'] = self.name+":individual:%s" % r.incr(self.individual_counter)
-                self.put_individual( member['id'], fitness = member['fitness'] , chromosome  = member['chromosome'])
+                self.put_individual(**member)
+               # self.put_individual( member['id'], fitness = member['fitness'] , chromosome  = member['chromosome'])
             r.delete(sample['sample_id'])
             r.lrem(self.sample_queue,sample['sample_id'])
 
@@ -168,6 +164,16 @@ class Population:
                 self.respawn_sample( r.lpop(self.sample_queue))
 
 
+
+if __name__ == "__main__":
+    p = Population("pop")
+    p.initialize()
+    k = p.individual_next_key()
+    i = Individual(id=k)
+    i.test = "Hola"
+    i.put("pop")
+
+    print i.get(True)
 
 
 

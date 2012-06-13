@@ -70,8 +70,6 @@
 
          var hm = $("body").wHumanMsg();
 
-
-
 		 $('.grid-item.slidedown').hover(function(){  
 		        $(".cover", this).stop().animate({top:'5px', left:'4px'},{queue:false,duration:300});
 		    }, function() {  
@@ -84,13 +82,10 @@
 		        $(".cover", this).stop().animate({top:'260px',left:'4px'},{queue:false,duration:300});
 		    });
 
-
-
          $("canvas").click(function () {
 			$(this).toggleClass("ilike");
 			
 			    });
-
 
          $(".fitness").click(function ()
          {
@@ -108,7 +103,8 @@
          });
 		
 		$("#get_more").click(function () {
-
+              if (sample )
+              {
                 var individuals = $(".ilike").length;
 
                 $("canvas").each(
@@ -136,31 +132,97 @@
 					    data: JSON.stringify({"jsonrpc": "2.0", "method": "putSample", "params": [sample], "id": 1 }),
 					    dataType: "json",
 					    success: function(data, textStatus, jqXHR) {
-
-							
 										//	alert(sample.sample[0].chromosome);
 											},
-
-
 						   error: function(jqXHR, textStatus, errorThrown)  {
 							       alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
 
-
 							});
-                //Get More!
 
+                  hm.wHumanMsg('Likes:'+ individuals + ', new paintings received',{color: 'yellow',  displayLength: 400});
+
+                  //Get More!
+              }
 
                 dataRequest();
-                hm.wHumanMsg('Likes:'+ individuals + ', new paintings received',{color: 'yellow',  displayLength: 400});
-				
+
 				
 				});
-				
-					
-					
+
+         $("#evolve").click(function () {
+
+             //Put them back
+             $.ajax(
+                     {
+                         url: 'http://localhost:8088/EvoSpace',
+                         type: "POST",
+                         contentType: "application/json",
+                         data: JSON.stringify({"jsonrpc": "2.0", "method": "evolve", "params": [8], "id": 1 }),
+                         dataType: "json",
+                         success: function(data, textStatus, jqXHR) {
+
+
+                             hm.wHumanMsg('Success in evolution of population',{color: 'green',  displayLength: 400});
+
+                         },
+
+                         error: function(jqXHR, textStatus, errorThrown)  {
+                             alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
+
+                     });
+
+         });
+
+         $("#respawn").click(function () {
+
+             //Put them back
+             $.ajax(
+                     {
+                         url: 'http://localhost:8088/EvoSpace',
+                         type: "POST",
+                         contentType: "application/json",
+                         data: JSON.stringify({"jsonrpc": "2.0", "method": "respawn", "params": [3], "id": 1 }),
+                         dataType: "json",
+                         success: function(data, textStatus, jqXHR) {
+
+
+                             hm.wHumanMsg('Samples respawned',{color: 'red',  displayLength: 400});
+
+                         },
+
+                         error: function(jqXHR, textStatus, errorThrown)  {
+                             alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
+
+                     });
+
+         });
+
+         $("#restart").click(function () {
+
+             //Put them back
+             $.ajax(
+                     {
+                         url: 'http://localhost:8088/EvoSpace',
+                         type: "POST",
+                         contentType: "application/json",
+                         data: JSON.stringify({"jsonrpc": "2.0", "method": "init_pop", "params": [40], "id": 1 }),
+                         dataType: "json",
+                         success: function(data, textStatus, jqXHR) {
+
+
+                             hm.wHumanMsg('Population restarted',{color: 'red',  displayLength: 400});
+
+                         },
+
+                         error: function(jqXHR, textStatus, errorThrown)  {
+                             alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
+
+                     });
+
+         });
+
 		function dataRequest(){
-	           ///alert("set");
-				$.ajax(
+	           	$.ajax(
 					{   
 					url: 'http://localhost:8088/EvoSpace',
 				    type: "POST",
@@ -168,8 +230,10 @@
 				    data: JSON.stringify({"jsonrpc": "2.0", "method": "getSample", "params": [8], "id": 1 }),
 				    dataType: "json",
 				    success: function(data, textStatus, jqXHR) {
-
 										sample =jQuery.parseJSON(data.result);
+                                        if  (data.result == null)
+                                                alert("No more paintings in evospace: respawn some samples") ;
+
 
 										$("canvas").each(
 					          				function(i, element){
@@ -189,20 +253,13 @@
                                                 }
 
                                                 element.nextElementSibling.childNodes[3].textContent= " fitness:"+suma ;
-                                                //alert(slot_index);
-                                                //alert(element.nextElementSibling.childNodes[0].textContent)
-                                                 //= sample.sample[slot_index].id;
-						      					}
+               			      					}
 											);
 				       					},
-
 					   error: function(jqXHR, textStatus, errorThrown)  {
 						       alert ("Error:" + textStatus+" "+errorThrown+" "+jqXHR.responseText);}
-
-
 						});
-
-	  	}
+        }
 	
 		//alert("ready");
  		//dataRequest();
@@ -301,8 +358,14 @@
 
 					</div>
 
-		</div>		
-		
+		</div>
+        <div class='sixteen columns'>
+            <h3 class='strapline'> Admin Stuff</h3>
+            <button id="evolve">Evolve Population</button>
+            <button id="restart">Restart Population</button>
+            <button id="respawn">Respawn phantoms</button>
+        </div>
+
 		
 				
 
