@@ -4,13 +4,8 @@ from operator import itemgetter
 __author__ = 'mariosky'
 
 
-
-
-
 import numpy, random, jsonrpclib, json
 
-
-evospace_URL = 'http://localhost:8088/EvoSpace'
 
 
 def current_fitness(fitness):
@@ -25,7 +20,9 @@ def calc_fitness(pop):
 def sel_best(pop, k):
     return sorted(pop["sample"], key=itemgetter('currentFitness'), reverse=True)[:k]
 
-def init_pop( rangemin,rangemax, listSize, populationSize ):
+def init_pop( populationSize, rangemin = 0 ,rangemax = 11, listSize = 66,
+              evospace_URL = 'http://localhost:8088/EvoSpace'):
+
     server = jsonrpclib.Server(evospace_URL)
     server.initialize(None)
     for individual in range(populationSize):
@@ -34,12 +31,12 @@ def init_pop( rangemin,rangemax, listSize, populationSize ):
         server.put_individual(individual)
     return True
 
-def get_sample(sample_size):
+def get_sample(sample_size, evospace_URL = 'http://localhost:8088/EvoSpace'):
     server = jsonrpclib.Server(evospace_URL)
     sample =  json.loads(server.getSample(sample_size))
     return sample
 
-def put_sample(sample_id, sample):
+def put_sample(sample_id, sample,  evospace_URL = 'http://localhost:8088/EvoSpace'):
     result =  {'sample_id':sample_id , 'sample':   sample}
     server = jsonrpclib.Server(evospace_URL)
     server.putSample(json.dumps(result))
@@ -70,13 +67,13 @@ def crossHorizontal(papa,mama):
     mama["chromosome"] = mama["chromosome"].reshape(66).tolist()
     child1 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child1.reshape(66).tolist(),
-              'papa': papa["id"], 'mama':papa["id"] ,
-              'crossover':'crossHorizontal' }
+              'papa': papa["id"], 'mama':mama["id"] ,
+              'crossover':'crossHorizontal:'+str(cut) }
 
     child2 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child2.reshape(66).tolist(),
-              'papa': papa["id"], 'mama':papa["id"],
-              'crossover':'crossHorizontal' }
+              'papa': papa["id"], 'mama':mama["id"],
+              'crossover':'crossHorizontal:'+str(cut) }
 
     return child1,child2
 
@@ -96,11 +93,11 @@ def crossMirrorH(papa,mama):
     mama["chromosome"] = mama["chromosome"].reshape(66).tolist()
     child1 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child1.reshape(66).tolist(),
-              'mama':papa["id"],'crossover':'crossMirrorH' }
+              'papa':papa["id"],'crossover':'crossMirrorH:'+str(cut) }
 
     child2 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child2.reshape(66).tolist(),
-              'mama':mama["id"],'crossover':'crossMirrorH' }
+              'mama':mama["id"],'crossover':'crossMirrorH:'+str(cut) }
 
     return child1,child2
 
@@ -121,24 +118,24 @@ def crossMirrorV(papa,mama):
     mama["chromosome"] = mama["chromosome"].reshape(66).tolist()
     child1 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child1.reshape(66).tolist(),
-              'papa': papa["id"], 'crossover':'crossMirrorV'}
+              'papa': papa["id"], 'crossover':'crossMirrorV:'+str(cut)}
 
     child2 = {'id':None,'fitness':{"DefaultContext":0.0 },
               'chromosome':child2.reshape(66).tolist(),
-              'mama':mama["id"],'crossover':'crossMirrorV'}
+              'mama':mama["id"],'crossover':'crossMirrorV:'+str(cut)}
 
     return child1,child2
 
-def evolve():
-    sample = get_sample(8)
+def evolve(sample_size = 8 ):
+    sample = get_sample(sample_size)
     pop = calc_fitness(sample)
-    offspring = sel_best(pop,4)
+    offspring = sel_best(pop,sample_size/2)
 
     crossFunctions = [crossHorizontal,crossMirrorH,crossMirrorV]
     for papa, mama in zip(offspring[::2], offspring[1::2]):
         offspring.extend(random.choice(crossFunctions)(papa,mama))
 
-    put_sample(sample["sample_id"], offspring)
+    put_sample(sample["sample_id"], offspring )
 
 
 
