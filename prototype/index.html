@@ -228,7 +228,7 @@
 					url: '/EvoSpace',
 				    type: "POST",
 				    contentType: "application/json",
-				    data: JSON.stringify({"jsonrpc": "2.0", "method": "getSample", "params": [16], "id": 1 }),
+				    data: JSON.stringify({"jsonrpc": "2.0", "method": "getSample", "params": [16 ], "id": 1 }),
 				    dataType: "json",
 				    success: function(data, textStatus, jqXHR) {
 										sample =jQuery.parseJSON(data.result);
