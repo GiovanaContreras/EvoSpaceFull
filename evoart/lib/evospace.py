@@ -6,9 +6,11 @@ LOG_INTERVAL = 10
 import ConfigParser
 import redis, json
 
-
+# Por que 5 iteraciones
 co = ConfigParser.ConfigParser()
-co.read("config/evospace.cfg")
+co.read(["config/evospace.cfg","../config/evospace.cfg"])
+
+
 
 HOST = co.get('redis', 'HOST')
 PORT = co.getint('redis', 'PORT')
@@ -33,13 +35,15 @@ class Individual:
         else:
             return False
 
-        
     def get(self, as_dict = False):
-            #Se evalua el texto almacenado en Redis
+            #Se evalua el diccionario almacenado en Redis
             #Esto crea el tipo de dato correspondiente en python
-            #fitness es un diccionario y chromosome una lista
-        dict = eval(r.get(self.id))
-        self.__dict__.update(dict)
+            #normalmente fitness es un diccionario y chromosome una lista
+        if r.get(self.id):
+            dict = eval(r.get(self.id))
+            self.__dict__.update(dict)
+        else:
+            raise LookupError("Key Not Found")
 
         if as_dict:
             return self.__dict__
@@ -64,7 +68,7 @@ class Population:
         #Esta es una propiedad del EvoSpaceServer NO de la poblacion
         self.is_active = False
 
-    ##NOOO Aqui
+##NOOO Aqui
     def deactivate(self):
         self.is_active = False
 
@@ -170,11 +174,5 @@ class Population:
 
 
 if __name__ == "__main__":
-    p = Population("pop")
-    p.initialize()
-    k = p.individual_next_key()
-    i = Individual(id=k)
-    i.test = "Hola"
-    i.put("pop")
+    pass
 
-    print i.get(True)

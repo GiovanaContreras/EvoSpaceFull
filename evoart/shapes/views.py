@@ -40,10 +40,7 @@ popName='pop'
 
 @csrf_exempt
 def evospace(request):
-
-    if request.is_ajax():
-        if request.method == 'POST':
-            
+    if  request.method == 'POST':
             population = Population(popName)
             print 'Raw Data___: "%s"' % request.body
             print type(request.body)
@@ -53,8 +50,10 @@ def evospace(request):
             id     = json_data["id"]
             
             if method == "initialize":
+
                 result = population.initialize()
                 data = json.dumps({"result" : result,"error": None, "id": id})
+                print data
                 return HttpResponse(data, mimetype='application/javascript')
             elif method == "getSample":
                 result = population.get_sample(params[0])
@@ -76,10 +75,15 @@ def evospace(request):
             elif method == "respawn":
                 data = population.respawn(n=params[0])
                 return HttpResponse(json.dumps("Success"), mimetype='application/javascript')
+            elif method == "put_individual":
+                print  "params",params[0]
+                population.put_individual(**params[0])
+                data = json.dumps({"result" : None,"error": None, "id": id})
+                return HttpResponse(data, mimetype='application/json')
 
 
     else:
-        print HttpRequest.META['CONTENT_TYPE']
+        return HttpResponse("ajax & post please", mimetype='text')
             
 #@ensure_csrf_cookie            
 def home(request):

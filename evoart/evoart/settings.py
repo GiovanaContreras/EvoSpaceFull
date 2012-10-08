@@ -114,7 +114,7 @@ ROOT_URLCONF = 'evoart.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'evoart.wsgi.application'
 
-TEMPLATE_DIRS = ("/home/evoart/templates"
+TEMPLATE_DIRS = ("/home/evoart/templates",
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
