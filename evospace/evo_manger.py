@@ -1,14 +1,11 @@
 __author__ = 'mariosky'
 
+
 import ast
-
-## Hamming Distance de una lista de vectores binarios
-## data = [[1,1,1],[0,0,0],[1,1,0],[1,0,0],[0,1,0],[1,0,1]]
-## print sum(d.pdist(data,'hamming')*len(data[0]))
-
 
 
 import redis, time
+
 
 
 class EvoSpaceManager(object):

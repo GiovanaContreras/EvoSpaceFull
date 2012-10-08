@@ -1,6 +1,5 @@
 __author__ = 'mario'
 
-
 LOGGING = True
 LOG_INTERVAL = 10
 
@@ -9,7 +8,7 @@ import redis, json
 
 
 co = ConfigParser.ConfigParser()
-co.read("config/evospace.cfg")
+co.read("../config/evospace.cfg")
 
 HOST = co.get('redis', 'HOST')
 PORT = co.getint('redis', 'PORT')
@@ -20,7 +19,6 @@ r = redis.Redis(host=HOST, port=PORT, db=DB)
 class Individual:
     def __init__(self, **kwargs):
         ## Se puede inicializar desde un diccionario
-
         self.id = kwargs['id']
         self.fitness = kwargs.get('fitness',{})
         self.chromosome = kwargs.get('chromosome',[])

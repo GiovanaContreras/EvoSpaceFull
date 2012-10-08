@@ -41,13 +41,13 @@ k?w?s?.workerN.txt where N is the worker number.
 
 Data is stored about each generation:
 Column#	Data
-1		Iteration number
-2		Worker number (doesn't change in each file )
-3		Sample ID, of the form: pop:sample:1
-4		Generation Number 
-5		Maximum Fitness
-6		Minimum Fitness 
-7		Average Fitness
+0		Iteration number
+1		Worker number (doesn't change in each file )
+2		Sample ID, of the form: pop:sample:1
+3		Generation Number
+4		Maximum Fitness
+5		Minimum Fitness
+6		Average Fitness
 
 Note that the last record of each worker can be truncated
 because workers are immediately killed when an optimal solution
