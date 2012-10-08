@@ -5,15 +5,16 @@ __author__ = 'mariosky'
 
 
 import numpy, random, jsonrpclib, json
-
+from lib.evospace import Population
 
 def current_fitness(fitness):
     return sum([fitness[k] for k in fitness])
-
+    
 def calc_fitness(pop):
     for ind in pop["sample"]:
         ind['currentFitness'] = int(current_fitness(ind['fitness']))
     return pop
+        
 
 
 def order_best(pop):
@@ -22,23 +23,23 @@ def order_best(pop):
 def init_pop( populationSize, rangemin = 0 ,rangemax = 11, listSize = 66,
               evospace_URL = 'http://localhost:8088/EvoSpace'):
 
-    server = jsonrpclib.Server(evospace_URL)
-    server.initialize(None)
+    server = Population("pop")
+    server.initialize()
     for individual in range(populationSize):
         chrome = [random.randint(rangemin,rangemax) for _ in range(listSize)]
         individual = {"id":None,"fitness":{"DefaultContext":0.0 },"chromosome":chrome}
-        server.put_individual(individual)
-
+        server.put_individual(**individual)
+    
 
 def get_sample(sample_size, evospace_URL = 'http://localhost:8088/EvoSpace'):
-    server = jsonrpclib.Server(evospace_URL)
-    sample =  json.loads(server.getSample(sample_size))
+    server =  Population("pop")
+    sample =  server.get_sample(sample_size)
     return sample
 
 def put_sample(sample_id, sample,  evospace_URL = 'http://localhost:8088/EvoSpace'):
     result =  {'sample_id':sample_id , 'sample':   sample}
-    server = jsonrpclib.Server(evospace_URL)
-    server.putSample(json.dumps(result))
+    server = Population("pop")
+    server.put_sample(json.dumps(result))
 
 
 

@@ -1,0 +1,404 @@
+<html>
+<head>
+<title>Fun with JSON RPC!</title>
+<link rel="stylesheet" href="01.css">
+<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="isDebug:true, usePlainJson:true"></script>
+<script src="jquery.js"></script>
+<script src="ExampleJQ.js"></script>
+<script type="text/javascript">
+dojo.require("dojo.rpc.JsonService");
+dojo.addOnLoad(
+        function() {
+            //construct the smd as an Object literal...
+            var target = 'Hello World';
+            var o = {
+                "serviceType": "JSON-RPC",
+                "serviceURL": "/EvoSpace",
+                "methods":[
+                    {
+                        "name": "getSample",
+                        "parameters":[
+                            {name : "size"}
+                        ]
+                    },
+                    {
+                        "name": "sumOfSquares",
+                        "parameters":[
+                            {name : "list"}
+                        ]
+                    }
+                ]
+            }
+            //instantiate the service
+            var rpcObject = new dojo.rpc.JsonService(o);
+            //call the service and use the Deferred that is returned to add a callback
+            var sum = rpcObject.getSample(10);
+
+            sum.addCallback(function(response) {
+
+                        var i = 0;
+                        var datos = dojo.fromJson(response);
+                        var individuo = datos.sample[0];
+
+                        //  var evo= datos.sample[0];
+
+                        console.log("the answer is ", response);
+                        console.log(datos.sample);
+
+
+                        // var evo = Selection(datos.sample);
+                       //  var evoFinal = evo;
+                         var cross = crossover(datos.sample);
+                         crossFinal = cross;
+                         var uni = union(cross);
+                         var mut = mutation(uni);
+                         mutFinal = mut;
+                         var fit = FitFinal(mutFinal);
+                         var max = maximo(fit);
+
+
+                        /*    nf = evalfitness(datos.sample);
+                         car = individuoToString(datos.sample);
+                         evo = evolution(datos.sample);*/
+/*
+                        dojo.forEach(nf, function(item, i) {
+                            var li = dojo.doc.createElement("li");
+                            li.innerHTML = item.fitness.DefaultContext + "................" + car[i];
+                            dojo.byId("fitness").appendChild(li);
+                        });*/
+                    }
+            );
+
+            var numGenerations = 100;
+            var generation = [];
+            var r;
+            var target = "Hola mundo"
+            var crossoverProb = 0.9;
+
+            var r;
+            var candidates = [];
+            var parents = [];
+          //var crossoverPoint;
+            var mutationProb = 0.2;
+            var evoFinal;
+            var crossFinal;
+            var mutFinal;
+
+
+///////////////////////////////METODO DE FITNESS ////////////////////////////////
+
+            function fitness(chromosome) {
+
+                // higher fitness is better
+                var f = 0; // start at 0 - the best fitness
+                for (var i = 0, c = target.length; i < c; i++) {
+                    // subtract the ascii difference between the target character and the chromosome character. Thus 'c' is fitter than 'd' when compared to 'a'.
+                    f -= Math.abs(target.charCodeAt(i) - chromosome[i]);
+
+                }
+
+                // alert("fitness    "+f);
+                return f;
+            }
+
+            ///////////////////////////////EVOLUCION ////////////////////////////////
+            function rand(min, max) {
+                // Math.floor gives 'better' random numbers than Math.round, apparently.
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+          ///////////////////////////////EVOLUCION ////////////////////////////////
+
+           function Selection(population) {
+
+              alert("poblacion    "+population);
+
+
+                var new_gen = [];
+                for (var i = 0,n = 0, c = population.length; i < c; i += 2,n++) {
+
+                    for (var j = 0; j < 2; j++) {
+                        r = rand(0, population.length - 1);
+
+                        candidates[0]= population[r].chromosome;
+                        //   alert("candidato 0  "+population[r]);
+
+
+                        r = rand(0, population.length - 1);
+
+                        candidates[1]= population[r].chromosome;
+
+                        //  alert("candidato 1  "+population[r]);
+                        // run tournament to determine winning candidate:
+                        r = Math.random();
+
+                        if (fitness(candidates[0]) < fitness(candidates[1])) {
+
+                            // keep fittest candidate
+                            parents[j] = candidates[0];
+                            //   alert("PARETES EN 1    "+parents[j]);
+
+                        } else {
+
+                            parents[j] = candidates[1];
+
+                            //   alert("PARETES EN 2  "+parents[j]);
+
+                        }
+
+
+                    }
+                    new_gen[n] = parents;
+                    parents = [];
+
+                }
+   alert("NUWVA GENERACION    "+new_gen);
+                return new_gen;
+
+
+            }
+
+            ;
+            function crossover(evo) {
+
+
+                 alert("CRUCE    "+evo[0].chromosome);
+
+                var newevo = [];
+
+                for (var i = 0, c = evo.length; i < c; i++) {
+
+                    r = Math.random();
+
+                    if (r < crossoverProb) {
+                        var new_parents = [];
+                        // perform crossover on parents to produce new children:
+                        crossoverPoint = rand(1, evo[i][0].length - 2); // don't allow crossover to occur at the far ends of the chromosome - that's just a straight swap and therefore simply cloning.
+
+                        new_parents[0] = evo[i][0].slice(0, crossoverPoint);
+                        //  alert("evo posicion 0   "+evo[0][0]);
+
+                        new_parents[0] = new_parents[0].concat(evo[i][1].slice(crossoverPoint));
+                        //alert("new parents 0        " + new_parents);
+
+
+                        new_parents[1] = evo[i][1].slice(0, crossoverPoint);
+                        //  alert("evo posicion 1   "+evo[0][1]);
+
+                        new_parents[1] = new_parents[1].concat(evo[i][0].slice(crossoverPoint));
+                        // alert("new parents 1     " + new_parents[i + 1]);
+
+                        newevo[i] = new_parents;
+
+                    }
+
+                    else {
+                        // attack of the clones:
+                        newevo[i] = evo[i];
+
+                    }
+                }
+                // alert("CRUCE----" + newevo);
+
+                return newevo;
+            }
+
+            ;
+
+            function mutation(evo) {
+
+                var new_gen = [];
+
+
+                for (var i = 0, c = evo.length; i < c; i++) {
+
+                    new_gen.push(evo[i]);
+                    r = Math.random();
+
+                    if (r < mutationProb) {
+
+                        // chose a point in the chromosome to mutate - can be anywhere
+                        mutationPoint = rand(0, evo[i].length - 1);
+                        new_gen[i][mutationPoint] += rand(-5, 5);
+                    }
+                    else {
+                        // attack of the clones:
+                        new_gen[i] = evo[i];
+
+                    }
+                }
+
+                return new_gen;
+            }
+
+
+
+function union(evo) {
+    var pop = [];
+
+    for (var i = 0, c = evo.length; i < c; i++) {
+
+        pop.push(evo[i][0]);
+        pop.push(evo[i][1]);
+
+
+    }
+    return pop;
+
+
+}
+;
+
+            function FitFinal(mutFinal) {
+
+                       var fitarray = [];
+                       for (var i = 0, c = mutFinal.length; i < c; i++) {
+                           var ind = {};
+                           ind.cromo = mutFinal[i];
+                           ind.fitness = fitness(mutFinal[i]);
+                           fitarray.push(ind);
+                       }
+
+                       //alert("fitarray---"+fitarray);
+                       return fitarray;
+
+                   }
+
+                   function maximo(fitarray) {
+
+                       var values = [];
+                       var val = {};
+                       var i = 0;
+                       var mn = fitarray[0].fitness;
+                       var mxm = fitarray[0].fitness;
+                       var suma = 0;
+                       var sumatotal = 0;
+                       var chrommn = 0;
+                       var chromxm = 0;
+                       var chromsuma = 0;
+                       var total = 0;
+                       var i = 0;
+
+                       for (i = 0; i < fitarray.length; i++) {
+
+                           if (fitarray[i].fitness >= mxm) {
+                               mxm = fitarray[i].fitness;
+                               chromxm = chromosomeToString(fitarray[i].cromo);
+
+                           }
+
+                       }
+
+                       for (i = 0; i < fitarray.length; i++) {
+                           if (fitarray[i].fitness <= mn) {
+                               mn = fitarray[i].fitness;
+                               chrommn = chromosomeToString(fitarray[i].cromo);
+                           }
+                       }
+
+                       /*
+                        for (i = 0; i < fitarray.length; i++){
+
+
+                        suma =fitarray[i].fitness+fitarray[i+1].fitness;
+                        // total= suma/fitarray.length;
+                        //chromsuma = chromosomeToString(fitarray[i].cromo);
+                        //i=i+1;
+                        }*/
+
+
+                       val.mxm = mxm;
+                       val.chromm = chrommn;
+                       val.mn = mn;
+                       val.chromxm = chromxm;
+                       val.avg = total;
+                       val.chromsuma = chromsuma;
+
+                       values.push(val);
+
+                       return val;
+
+                   }
+
+                   ;
+
+
+
+        } // TERMINA METODO PRINCIPAL
+
+
+);// CIERRE DE DOJO
+
+</script>
+
+
+<body>
+
+<div id="all" class="all">
+    <label>Target</label>
+    <span id="span3" class="span1"> </span>
+    <br>
+    <br>
+    <label>Population Size</label>
+    <span id="span1" class="span1"> </span>
+    <br>
+    <br>
+    <label>Generations</label>
+    <span id="span2" class="span1"> </span>
+    <br>
+    <br>
+    <label>Crossover probability</label>
+    <span id="span4" class="span1"> </span>
+    <br>
+    <br>
+    <label>Mutation probability</label>
+    <span id="span5" class="span1"> </span>
+    <br>
+    <br>
+
+
+    <br>
+    <br>
+
+    <form id="button" class="button">
+        <input type="button"
+               onclick="Generations(numGenerations)"
+               value="Evolucionar">
+    </form>
+</div>
+
+<table border="2" id="estadistics" style="border-color:black">
+
+    <tbody>
+    <tr>
+        <td>Generation</td>
+        <td>Best</td>
+        <td>Chromosome</td>
+        <td>Worst</td>
+        <td>Chromosome</td>
+        <td>Avarage</td>
+        <td>Chromosome</td>
+    </tr>
+    <tr>
+        <td id="span10"></td>
+        <td id="span6"></td>
+        <td id="span7"></td>
+        <td id="span8"></td>
+        <td id="span9"></td>
+        <td id="span11"></td>
+        <td id="span12"></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<form id="button2" class="button">
+    <input type="button"
+           value="principal">
+</form>
+
+</div>
+
+
+</body>
+</html>

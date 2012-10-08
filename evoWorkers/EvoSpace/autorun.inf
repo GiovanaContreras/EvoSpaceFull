@@ -1,0 +1,4 @@
+[autorun]
+action=Get special offers from SanDisk partners
+open=RunClubSanDisk.exe
+icon=RunClubSandisk.exe

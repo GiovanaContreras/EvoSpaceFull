@@ -1,0 +1,615 @@
+<html>
+<head>
+<title> Evolution </title>
+<link href="favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+<link rel="stylesheet" href="01.css">
+<script src="jquery.js"></script>
+<script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.custom.min.js"></script>
+<script type="text/javascript">
+/*Alert para desplegar lo que Tienen los objetos
+ alert(JSON.stringify(fitarray));*/
+
+
+$(document).ready(function() {
+
+
+
+     $("#span1").text(populationSize);
+     // $("#span2").text(numGenerations);
+     $("#span3").text(target);
+     $("#span4").text(crossoverProb);
+     $("#span5").text(mutationProb);
+     $("#span8").text(mutFinal);
+
+
+     $('#estadistics').toggle(function() {
+     $('#estadistics').addClass('hidden');
+     });
+
+     $('#button2').toggle(function() {
+     $('#button2').addClass('hidden');
+     });
+
+     $('#button3').toggle(function() {
+     $('#button3').addClass('hidden');
+     });
+
+     $('#best').toggle(function() {
+     $('#best').addClass('hidden');
+     });
+
+
+     $('#button').click(function() {
+
+     $('#all').toggle('slow', function() {
+     $('#all').addClass('hidden');
+
+     });
+
+     $('#estadistics').toggle('slow', function() {
+     $('#estadistics').removeClass('hidden');
+
+     });
+
+     $('#button2').toggle(function() {
+     $('#button2').removeClass('hidden');
+     });
+
+     $('#button3').toggle(function() {
+     $('#button3').removeClass('hidden');
+     });
+
+
+     });
+
+
+     $('#button2').click(function() {
+
+     $('#best').toggle('slow', function() {
+     $('#best').addClass('hidden');
+     });
+
+     $('#all').toggle('slow', function() {
+     $('#all').removeClass('hidden');
+
+     });
+
+     $('#estadistics').toggle('slow', function() {
+     $('#estadistics').addClass('hidden');
+
+     });
+
+     $('#button2').toggle('slow', function() {
+     $('#button2').addClass('hidden');
+     });
+
+     $('#button3').toggle('slow', function() {
+     $('#button3').addClass('hidden');
+
+
+     });
+
+     $(":text").each(function() {
+     $($(this)).val('');
+     });
+     location.reload();
+
+
+     });
+
+
+
+   $('#button').click(function() {
+
+       Generations(generation);
+   });
+
+    var generation = 100;
+    var r;
+    var target = "hola mundo"
+    var crossoverProb = 0.9;
+    var populationSize = 50;
+    var r;
+    var candidates = [];
+    var parents = [];
+    var mutationProb = 0.2;
+    var evoFinal;
+    var crossFinal;
+    var mutFinal;
+
+
+     function Generations(generation) {
+
+    dataRequest(generation);
+
+
+    } ;
+
+
+///////////////////////////////METODO DE FITNESS ////////////////////////////////
+
+    function fitness(chromosome) {
+        //alert("CHORMOSOMO  " + chromosome);
+
+        // higher fitness is better
+        var f = 0; // start at 0 - the best fitness
+        for (var i = 0, c = target.length; i < c; i++) {
+            // subtract the ascii difference between the target character and the chromosome character. Thus 'c' is fitter than 'd' when compared to 'a'.
+            f -= Math.abs(target.charCodeAt(i) - chromosome[i]);
+
+        }
+
+        // alert("fitness    " + f);
+        return f;
+    }
+
+///////////////////////////////METODO DE CONVERTIR A STRING ////////////////////////////////
+
+    function chromosomeToString(uni) {
+
+        var str = '';
+        for (var i = 0, c = uni.length; i < c; i++) {
+
+
+            str += String.fromCharCode(uni[i]);
+        }
+        return str;
+    }
+
+    ;
+
+    function rand(min, max) {
+        // Math.floor gives 'better' random numbers than Math.round, apparently.
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+
+///////////////////////////////EVOLUCION ////////////////////////////////
+
+    function Selection(population) {
+
+        // alert("SELECCION  sfdsdfsd    " + JSON.stringify(population));
+
+        var new_gen = [];
+
+        // alert("canditatos 2   "+new_gen);
+
+        for (var i = 0,n = 0, c = population.length; i < c; i += 2,n++) {
+
+            //alert("canditatos  3  "+population.length);
+
+            for (var j = 0; j < 2; j++) {
+
+                //alert("canditatos 4   "+population.length);
+
+
+                r = rand(0, population.length - 1);
+
+
+                candidates[0] = population[r];
+
+                //alert("canditatos    "+JSON.stringify(candidates[0]));
+
+
+                r = rand(0, population.length - 1);
+
+                candidates[1] = population[r];
+
+                // alert("candidato 1  "+candidates[1]);
+                // run tournament to determine winning candidate:
+                r = Math.random();
+
+                if (fitness(candidates[0].chromosome) < fitness(candidates[1].chromosome)) {
+                    //alert("canditato en 0    "+JSON.stringify(candidates[1].chromosome));
+                    //  alert("candidato 1 "+candidates[1].chromosome);
+                    // keep fittest candidate
+                    parents[j] = candidates[0].chromosome;
+                    //alert("Parent en 0    "+JSON.stringify(parents[j]));
+
+                } else {
+
+                    parents[j] = candidates[1].chromosome;
+
+                    //alert("Parents en 1    "+JSON.stringify(parents[j]));
+                }
+
+
+            }
+
+            new_gen[n] = parents;
+            parents = [];
+
+        }
+       //alert("nueva generacion   " + JSON.stringify(new_gen));
+        return new_gen;
+
+
+    }
+
+    ;
+    function crossover(evo) {
+
+        // alert("cruce1      " + JSON.stringify(evo));
+        //alert("cruce    " + JSON.stringify(evo[0][0].chromosome));
+        //alert("cruce    3" + JSON.stringify(evo[0][1].chromosome));
+        var newevo = [];
+
+        for (var i = 0, c = evo.length; i < c; i++) {
+
+            r = Math.random();
+
+
+            if (r < crossoverProb) {
+                var new_parents = [];
+                // perform crossover on parents to produce new children:
+                crossoverPoint = rand(1, evo[i][0].length - 2); // don't allow crossover to occur at the far ends of the chromosome - that's just a straight swap and therefore simply cloning.
+                // alert("PUNTO DE CRUCE      "+JSON.stringify(evo[i][0].chromosome));
+
+
+                new_parents[0] = evo[i][0].slice(0, crossoverPoint);
+                //  alert("evo posicion 0   "+evo[0][0]);
+
+                new_parents[0] = new_parents[0].concat(evo[i][1].slice(crossoverPoint));
+                //alert("new parents 0        " + new_parents);
+
+
+                new_parents[1] = evo[i][1].slice(0, crossoverPoint);
+                //  alert("evo posicion 1   "+evo[0][1]);
+
+                new_parents[1] = new_parents[1].concat(evo[i][0].slice(crossoverPoint));
+                // alert("new parents 1     " + new_parents[i + 1]);
+
+                newevo[i] = new_parents;
+
+            }
+
+            else {
+                // attack of the clones:
+                newevo[i] = evo[i];
+            }
+        }
+        //alert("CRUCE----" +newevo);
+
+        return newevo;
+    }
+
+    ;
+
+    function mutation(evo) {
+        //alert("mutacion      "+JSON.stringify(evo));
+
+
+        var new_gen = [];
+
+
+        for (var i = 0, c = evo.length; i < c; i++) {
+
+            new_gen.push(evo[i]);
+            r = Math.random();
+
+            if (r < mutationProb) {
+
+                // chose a point in the chromosome to mutate - can be anywhere
+                mutationPoint = rand(0, evo[i].length - 1);
+                new_gen[i][mutationPoint] += rand(-5, 5);
+            }
+            else {
+                // attack of the clones:
+                new_gen[i] = evo[i];
+
+            }
+        }
+
+        return new_gen;
+    }
+
+
+    ;
+
+    function union(evo) {
+        // alert("UNION    " + evo[0]);
+        var pop = [];
+
+        for (var i = 0, c = evo.length; i < c; i++) {
+
+            pop.push(evo[i][0]);
+            pop.push(evo[i][1]);
+
+
+        }
+        return pop;
+
+
+    }
+
+    ;
+
+    function FitFinal(mutFinal) {
+
+        var fitarray = [];
+        for (var i = 0, c = mutFinal.length; i < c; i++) {
+            var ind = {};
+            // var fitness={"DefaultContext":0.0 }
+            ind.id = null;
+            ind.fitness = {"DefaultContext":fitness(mutFinal[i])};
+            ind.chromosome = mutFinal[i];
+            fitarray.push(ind);
+        }
+
+        return fitarray;
+
+    }
+
+
+    function objback(fitarray) {
+
+        var sample_back = {};
+
+        sample_back.sample = fitarray;
+
+        sample_back.sample_id = datos.sample_id;
+        //alert(JSON.stringify(sample_back));
+        ;
+
+       //alert(JSON.stringify(datos.sample_id));
+        return sample_back;
+    }
+
+    ;
+
+
+    function maximo(fitarray) {
+
+        var values = [];
+        var val = {};
+        var i = 0;
+        var mn = fitarray[0].fitness.DefaultContext;
+        var mxm = fitarray[0].fitness.DefaultContext;
+        var suma = 0;
+        var sumatotal = 0;
+        var chrommn = 0;
+        var chromxm = 0;
+        var chromsuma = 0;
+        var total = 0;
+        var i = 0;
+
+        for (i = 0; i < fitarray.length; i++) {
+
+            if (fitarray[i].fitness.DefaultContext >= mxm) {
+                mxm = fitarray[i].fitness.DefaultContext;
+                chromxm = chromosomeToString(fitarray[i].chromosome);
+            }
+
+        }
+
+        for (i = 0; i < fitarray.length; i++) {
+            if (fitarray[i].fitness.DefaultContext <= mn) {
+                mn = fitarray[i].fitness.DefaultContext;
+                chrommn = chromosomeToString(fitarray[i].chromosome);
+            }
+        }
+
+        val.mxm = mxm;
+        val.chromm = chrommn;
+        val.mn = mn;
+        val.chromxm = chromxm;
+        val.avg = total;
+        val.chromsuma = chromsuma;
+
+        values.push(val);
+
+        //alert(JSON.stringify(val));
+        return val;
+
+    }
+
+    ;
+
+    function dataRequest(numGenerations) {
+
+       // console.log("Numero de generaciones: " + numGenerations);
+
+
+        $.ajax({
+
+
+            url: '/EvoSpace',
+            data: JSON.stringify({jsonrpc:'2.0',method:'getSample', params:[10],id:"jsonrpc"}),  // id is needed !!
+            type:"POST",
+            dataType:"json",
+            contentType:"application/json;charset=utf-8",
+            success:  function (response) {
+                console.log("The result is : " + response.result);
+                var data = jQuery.parseJSON(response.result);
+                console.log(data);
+                $(document).trigger('EvoSpace', data);
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error:" + textStatus + " " + errorThrown + " " + jqXHR.responseText);
+            }
+        });
+
+
+        $(document).on('EvoSpace', function(e, data) {
+
+
+
+                datos = data;
+
+                // alert("SELECCION      " + datos);
+
+
+                var population = datos.sample;
+                // alert(JSON.stringify("ID DEL SAMPLE     "+datos.sample_id));
+
+
+                // console.log("Lo datos son: " + population);
+
+for (var i = 0, c = numGenerations; i < c; i++) {
+
+                var evo = Selection(population);
+                evoFinal = evo;
+                var cross = crossover(evo);
+                crossFinal = cross;
+                var uni = union(cross);
+                var mut = mutation(uni);
+                mutFinal = mut;
+                var fit = FitFinal(mutFinal);
+                var max = maximo(fit);
+                obback = objback(fit);
+
+
+                var t = document.getElementById('estadistics').innerHTML;
+
+                t = t.substring(0, (t.length - 8));
+
+                t += "<TR>";
+                t += "<TD>" + [i + 1] + "</TD>";
+                t += "<TD>" + max.mxm + "</TD>";
+                t += "<TD>" + max.chromxm + "</TD>";
+                t += "<TD>" + max.mn + "</TD>";
+                t += "<TD>" + max.chromm + "</TD>";
+                //t += "<TD>" + max.avg + "</TD>";
+                //t += "<TD>" + max.chromsuma + "</TD>";
+                t += "</TR>";
+
+                //postMessage(max.mxm);
+
+
+                document.getElementById('estadistics').innerHTML = t;
+
+                if (max.mxm == 0) {
+                    document.getElementById('span21').innerHTML = "" + max.chromxm + " reached in " + [i + 1] + " generations";
+
+                    $('#best').toggle(function() {
+                        $('#best').removeClass('hidden');
+                    });
+
+                    c = i;
+                }
+
+            }
+
+
+        })
+    }
+
+    ;
+
+    $('#button3').click(function() {
+
+        PutBack(obback);
+
+    });
+
+
+    //Put them back
+    function PutBack(obback) {
+        $.ajax(
+                {
+                    url: '/EvoSpace',
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({"jsonrpc": "2.0", "method": "putSample", "params": [obback], "id": 1 }),
+                    dataType: "json",
+
+                    success: function(data, textStatus, jqXHR) {
+                        //  alert(JSON.stringify(obback));
+                    },
+
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert("Error:" + textStatus + " " + errorThrown + " " + jqXHR.responseText);
+                    }
+
+
+                });
+    }
+});
+//var populationSize = 92;
+
+</script>
+</head>
+<body>
+
+<div id="all" class="all">
+    <label>Target:</label>
+    <span id="span3" class="span1"> </span>
+    <br>
+    <br>
+    <label>Generations:</label>
+    <input value="" type="text" name="gen2" id="gen" style="width:30px"/>
+    <br>
+    <br>
+
+    <label>Population Size:</label>
+    <span id="span1" class="span1"> </span>
+    <br>
+    <br>
+    <label>Crossover probability:</label>
+    <span id="span4" class="span1"> </span>
+    <br>
+    <br>
+    <label>Mutation probability:</label>
+    <span id="span5" class="span1"> </span>
+    <br>
+    <br>
+    <br>
+
+    <form id="button" class="button">
+        <input type="button" value="Evolucionar">
+    </form>
+</div>
+<div id="best">
+    <label class="span1">Best:</label>
+    <span id="span21" class="span1"> </span>
+</div>
+<form id="button2" class="button" class="span1">
+    <input type="button" value="principal">
+</form>
+
+<form id="button3" class="button" class="span1">
+    <input type="button" value="Putback">
+</form>
+<table border="2" id="estadistics" style="border-color:black">
+    <caption>Evolucion</caption>
+
+    <thead>
+
+    <tr>
+        <td>Generation</td>
+        <td>Best</td>
+        <td>Chromosome</td>
+        <td>Worst</td>
+        <td>Chromosome</td>
+        <!-- <td>Avarage</td>
+        <td>Chromosome</td>-->
+    </tr>
+
+    </thead>
+
+    <tbody>
+    <tr>
+        <td id="span10"></td>
+        <td id="span6"></td>
+        <td id="span7"></td>
+        <td id="span8"></td>
+        <td id="span9"></td>
+        <!--  <td id="span11"></td>
+       <td id="span12"></td>-->
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+
+
+</div>
+
+
+</body>
+</html>
+
+

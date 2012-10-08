@@ -1,0 +1,152 @@
+<html>
+<head>
+    <title> Inicializacion </title>
+    <script src="jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.qtip-1.0.0-rc3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.custom.min.js"></script>
+    <script type="text/javascript">
+        /*Alert para desplegar lo que tienen los objetos
+         alert(JSON.stringify(fitarray));*/
+
+
+        $(document).ready(function() {
+            $('#button').click(function() {
+                inicializacion(document.getElementById('gen').value, document.getElementById('target').value);
+            });
+
+
+            function inicializacion(popusize, target) {
+
+                var numeros = [];
+                var poparray = [];
+                var poparray2 = [];
+                var sample_back = {};
+
+                init();
+
+
+                for (var j = 0,d = popusize; j < d; j++) {
+                    var listan = [];
+                    var poblacion = {};
+
+                    for (var i = 0, c = target.length; i < c; i++) {
+                        numeros = rand(32, 122);
+                        listan[i] = numeros;
+
+
+                        poparray[j] = listan;
+                    }
+
+
+                    poblacion.id = null;
+                    poblacion.fitness = {"DefaultContext":0.0};
+                    poblacion.chromosome = poparray[j];
+                    poparray2.push(poblacion);
+
+
+                }
+
+
+                sample_back.sample = poparray2;
+                sample_back.sample_id = "pop:sample:1"
+
+                PutBack(sample_back);
+                return sample_back;
+
+            }
+
+            ;
+
+
+            function rand(min, max) {
+                // Math.floor gives 'better' random numbers than Math.round, apparently.
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+
+            }
+
+            ;
+
+
+            //Put them back
+            function PutBack(sample_back) {
+                //Put them back
+                $.ajax(
+                        {
+
+                            url: '/EvoSpace',
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({"jsonrpc": "2.0", "method": "newPop", "params": [sample_back], "id": 1 }),
+                            dataType: "json",
+                            success: function(data, textStatus, jqXHR) {
+                                //  alert(JSON.stringify(sample_back));
+                            },
+
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                alert("Error:" + textStatus + " " + errorThrown + " " + jqXHR.responseText);
+                            }
+
+
+                        });
+                //Get More!
+                //dataRequest();
+                //hm.wHumanMsg('Likes:'+ individuals + ', new paintings received',{color: 'yellow',  displayLength: 400});
+            }
+
+            ;
+
+
+            function init() {
+                //Put them back
+                $.ajax(
+                        {
+
+                            url: '/EvoSpace',
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({"jsonrpc": "2.0", "method": "initialize", "params": [], "id": 1 }),
+                            dataType: "json",
+                            success: function(data, textStatus, jqXHR) {
+                                //  alert(JSON.stringify(sample_back));
+                            },
+
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                alert("Error:" + textStatus + " " + errorThrown + " " + jqXHR.responseText);
+                            }
+
+
+                        });
+                //Get More!
+                //dataRequest();
+                //hm.wHumanMsg('Likes:'+ individuals + ', new paintings received',{color: 'yellow',  displayLength: 400});
+            }
+
+            ;
+
+        });
+    </script>
+</head>
+<body>
+
+<div id="all" class="all">
+
+    <label>Population size:</label>
+    <input value="" type="text" name="gen2" id="gen" style="width:30px"/>
+    <br>
+    <br>
+    <br>
+    <label>Target:</label>
+    <input value="" type="text" name="gen2" id="target" style="width:100px"/>
+    <br>
+    <br>
+    <br>
+
+    <form id="button" class="button" class="span1">
+        <input type="button" value="PutSample">
+    </form>
+</div>
+</body>
+</html>
+
+
