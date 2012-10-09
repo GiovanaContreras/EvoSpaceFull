@@ -9,7 +9,7 @@ from pyevolve import Crossovers
 
 import jsonrpclib, json,random, time, sys
 
-from fitness.trap import *
+from EvoSpace_cherry_py_server.fitness.trap import *
 
 
 class Worker(object):

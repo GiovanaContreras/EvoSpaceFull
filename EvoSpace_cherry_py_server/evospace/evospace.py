@@ -8,7 +8,7 @@ import redis, json
 
 
 co = ConfigParser.ConfigParser()
-co.read("../config/evospace.cfg")
+co.read(["config/evospace.cfg","../config/evospace.cfg"])
 
 HOST = co.get('redis', 'HOST')
 PORT = co.getint('redis', 'PORT')

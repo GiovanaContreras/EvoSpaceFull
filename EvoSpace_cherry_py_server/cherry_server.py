@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+from EvoSpace_cherry_py_server import evospace
+
 __author__ = 'mario'
 
 import cherrypy
@@ -7,7 +9,6 @@ from cherrypy._cpcompat import ntou
 import os, json
 
 import ConfigParser
-from evospace import evospace
 from evoArt.colors import init_pop, evolve
 
 

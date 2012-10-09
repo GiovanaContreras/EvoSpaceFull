@@ -5,7 +5,7 @@ from pyevolve import G1DBinaryString
 
 
 import jsonrpclib, sys
-from fitness.trap import *
+from EvoSpace_cherry_py_server.fitness.trap import *
 
 
 EvoSpaceServer = 'http://localhost:8088/EvoSpace'

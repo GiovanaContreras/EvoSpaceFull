@@ -1,8 +1,9 @@
+from EvoSpace_cherry_py_server import evospace
+
 __author__ = 'mariosky'
 
 
 import time, sys
-from evospace import evospace
 
 class RespawnManager(object):
     def __init__(self,respawn_interval = 100 , sleep_interval = 3, min_pop_size = 900,
